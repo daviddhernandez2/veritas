@@ -149,8 +149,11 @@ export const avatar = {
 };
 
 // Marca de Veritas: círculo cónico rojo→ámbar→verde con un punto oscuro
-// en el centro (logo en nav/login).
-export const logoGradient = 'conic-gradient(from 180deg, #f85149, #d29922 45%, #3fb950 90%, #f85149)';
+// en el centro (logo en nav/login). Stops repartidos a tercios exactos:
+// con 45%/90% el tramo verde→rojo ocupaba solo un 10% del anillo, ese
+// "chispazo" de color concentrado en un lado hacía que el punto central
+// se percibiera descentrado aunque geométricamente sí lo estaba.
+export const logoGradient = 'conic-gradient(from 180deg, #f85149, #d29922 33.33%, #3fb950 66.66%, #f85149)';
 
 // --- Botones ------------------------------------------------------------
 // Tres variantes del mockup: CTA principal (verde, Entrar/Publicar),
