@@ -1,7 +1,34 @@
 import mongoose from "mongoose";
 import { Post } from "../models/Post.js";
 import { SourceWeight } from "../models/SourceWeight.js";
+import { Appeal } from "../models/Appeal.js";
 import { AppError } from "../utils/AppError.js";
+
+const CLASSIC_SELECT =
+  "authorId parentId depth title content postType forkLabel forkRationale sourceType sourceWeight reliabilityAgg childCount status reportCount createdAt";
+
+// Los posts ocultos por moderación se siguen devolviendo (si no,
+// descolgarían a sus hijos, que pueden seguir visibles, del árbol
+// reconstruido en cliente) — solo cambia cómo se muestran, no si se
+// incluyen. `removed` sí queda fuera (borrado real, sin usar todavía).
+async function findThreadPosts(threadRootId) {
+  const posts = await Post.find({ threadRootId, status: { $in: ["visible", "hidden"] } })
+    .sort({ depth: 1, createdAt: 1 })
+    .select(CLASSIC_SELECT)
+    .populate("authorId", "username")
+    .lean();
+
+  const hiddenIds = posts.filter((p) => p.status === "hidden").map((p) => p._id);
+  if (hiddenIds.length > 0) {
+    const appeals = await Appeal.find({ postId: { $in: hiddenIds } }).select("postId");
+    const appealedIds = new Set(appeals.map((a) => String(a.postId)));
+    for (const post of posts) {
+      if (appealedIds.has(String(post._id))) post.appealed = true;
+    }
+  }
+
+  return posts;
+}
 // Crea un hilo raíz. No lleva parentId — de ahí que la validación de
 // `title` obligatorio viva aquí y no en el schema (una respuesta normal
 // no necesita título).
@@ -70,12 +97,7 @@ export async function getThreadTree(req, res) {
     throw new AppError("Hilo no encontrado", 404);
   }
 
-  const posts = await Post.find({ threadRootId: id, status: "visible" })
-    .sort({ depth: 1, createdAt: 1 })
-    .select(
-      "authorId parentId depth title content postType forkLabel forkRationale sourceType sourceWeight reliabilityAgg childCount createdAt",
-    )
-    .populate("authorId", "username");
+  const posts = await findThreadPosts(id);
 
   res.json({ posts });
 }
@@ -94,12 +116,7 @@ export async function getThreadPath(req, res) {
     throw new AppError("Hilo no encontrado", 404);
   }
 
-  const posts = await Post.find({ threadRootId: id, status: "visible" })
-    .sort({ depth: 1, createdAt: 1 })
-    .select(
-      "authorId parentId depth title content postType forkLabel forkRationale sourceType sourceWeight reliabilityAgg childCount createdAt",
-    )
-    .populate("authorId", "username");
+  const posts = await findThreadPosts(id);
 
   const byId = new Map(posts.map((p) => [String(p._id), p]));
   const target = byId.get(postId);

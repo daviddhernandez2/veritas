@@ -21,10 +21,14 @@ Completado:
 - **Fase 6** — vista árbol/camino: layout de árbol con pan/zoom, migas de
   pan y paneles de nodo/ramas hijas (diseño portado desde
   `design-reference/`), sobre el endpoint nuevo `GET /api/threads/:id/path/:postId`.
+- **Fase 7** — moderación MVP: reportes (`Report`) con auto-ocultación a
+  los 3 reportes distintos, reputación automática (-10 al autor por post
+  ocultado), y apelaciones (`Appeal`) que quedan registradas en `pending`
+  sin resolución todavía (no hay moderador humano hasta una fase
+  posterior).
 
-Pendiente: Fase 7 (moderación: reportes + reputación automática), Fase 8
-(documentación interna solo-admin en `/admin/docs`), Fase 9 (hardening y
-despliegue).
+Pendiente: Fase 8 (documentación interna solo-admin en `/admin/docs`),
+Fase 9 (hardening y despliegue).
 
 ## Cómo arrancar en local
 
@@ -61,6 +65,10 @@ existentes (o el mensaje de "todavía no hay hilos" si la base está vacía).
   autor poblado y el camino de ancestros hasta `:postId`. Alimenta la vista
   árbol/camino; se pide una sola vez al entrar en la pestaña.
 - `POST /api/posts/:parentId/reply` — responder o bifurcar (`postType`)
+- `POST /api/posts/:postId/report` — reportar un post (motivo + nota
+  opcional); auto-oculta a los 3 reportes distintos
+- `POST /api/posts/:postId/appeal` — el autor de un post oculto apela
+  (queda `pending`)
 - `GET /api/source-weights` — pesos de fiabilidad por tipo de fuente
 
 ## Estructura
@@ -70,7 +78,7 @@ veritas/
   server/
     src/
       config/       # conexión a Mongo
-      models/       # Post, User, SourceWeight
+      models/       # Post, User, SourceWeight, Report, Appeal
       routes/       # rutas Express por dominio (auth, threads, posts, source-weights)
       controllers/  # lógica de cada ruta
       middleware/    # auth, manejo de errores
@@ -79,7 +87,7 @@ veritas/
     src/
       api/           # cliente HTTP hacia el backend
       pages/         # Home, Login, Register, NewThread, Thread
-      components/    # PostNode, Sunburst, TreeView, ReliabilityBadge, ReplyForm...
+      components/    # PostNode, Sunburst, TreeView, PostModeration, ReliabilityBadge, ReplyForm...
       context/        # AuthContext
       utils/         # reliabilityColor (escala compartida rojo/ámbar/verde)
 ```
@@ -87,4 +95,4 @@ veritas/
 ## Roadmap
 
 Ver el documento de proyecto para el roadmap completo por fases (0 a 9).
-Estamos en: **Fase 7 — Moderación (reportes + reputación automática)**.
+Estamos en: **Fase 8 — Documentación interna solo-admin**.

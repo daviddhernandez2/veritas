@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getThreadClassicRequest, getThreadPathRequest } from '../api/threads.js';
-import { replyRequest } from '../api/posts.js';
+import { replyRequest, reportPostRequest, appealPostRequest } from '../api/posts.js';
 import { listSourceWeightsRequest } from '../api/sourceWeights.js';
 import PostNode from '../components/PostNode.jsx';
 import Sunburst from '../components/Sunburst.jsx';
@@ -57,6 +57,18 @@ export default function ThreadPage() {
     setTreeData(null);
   }
 
+  async function handleReport(postId, data) {
+    await reportPostRequest(postId, data);
+    await loadThread();
+    setTreeData(null);
+  }
+
+  async function handleAppeal(postId, text) {
+    await appealPostRequest(postId, { text });
+    await loadThread();
+    setTreeData(null);
+  }
+
   if (loading) return <p style={{ maxWidth: 720, margin: '40px auto' }}>Cargando hilo...</p>;
   if (error) return <p style={{ maxWidth: 720, margin: '40px auto', color: '#f85149' }}>{error}</p>;
 
@@ -99,14 +111,28 @@ export default function ThreadPage() {
       </div>
 
       {view === 'classic' && (
-        <PostNode post={root} childrenByParent={childrenByParent} sourceWeights={sourceWeights} onReply={handleReply} />
+        <PostNode
+          post={root}
+          childrenByParent={childrenByParent}
+          sourceWeights={sourceWeights}
+          onReply={handleReply}
+          onReport={handleReport}
+          onAppeal={handleAppeal}
+        />
       )}
       {view === 'sunburst' && <Sunburst posts={posts} />}
       {view === 'tree' &&
         (treeLoading || !treeData ? (
           <p style={{ opacity: 0.7 }}>Cargando árbol...</p>
         ) : (
-          <TreeView posts={treeData.posts} initialPath={treeData.path} sourceWeights={sourceWeights} onReply={handleReply} />
+          <TreeView
+            posts={treeData.posts}
+            initialPath={treeData.path}
+            sourceWeights={sourceWeights}
+            onReply={handleReply}
+            onReport={handleReport}
+            onAppeal={handleAppeal}
+          />
         ))}
     </div>
   );

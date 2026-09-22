@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { reliabilityColor } from '../utils/reliability.js';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 import ReplyForm from './ReplyForm.jsx';
+import PostModeration from './PostModeration.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 // Fork = ámbar (#d29922), igual que en PostNode/Sunburst — el mockup de
@@ -77,7 +78,7 @@ function computeLayout(rootPost, childrenByParent, collapsed, sm) {
   return { nodes, edges, w: Math.max(maxX + PAD, NW + PAD * 2), h: Math.max(maxY + PAD + 26, NH + PAD * 2), NW, NH };
 }
 
-export default function TreeView({ posts, initialPath, sourceWeights, onReply }) {
+export default function TreeView({ posts, initialPath, sourceWeights, onReply, onReport, onAppeal }) {
   const { user } = useAuth();
   const byId = useMemo(() => new Map(posts.map((p) => [p._id, p])), [posts]);
   const childrenByParent = useMemo(() => {
@@ -321,6 +322,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply })
                 const post = r.post;
                 const isFork = post.postType === 'fork';
                 const isSelected = post._id === selectedId;
+                const isHidden = post.status === 'hidden';
                 return (
                   <div key={post._id} style={{ position: 'absolute', left: r.x, top: r.y, width: r.w }}>
                     <button
@@ -332,8 +334,8 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply })
                         height: r.h,
                         padding: 0,
                         overflow: 'hidden',
-                        background: isFork ? '#12171f' : '#161b22',
-                        border: `1px ${isFork ? 'dashed' : 'solid'} ${isSelected ? '#e6edf3' : isFork ? FORK_COLOR : '#30363d'}`,
+                        background: isHidden ? '#1a1011' : isFork ? '#12171f' : '#161b22',
+                        border: `1px ${isFork ? 'dashed' : 'solid'} ${isSelected ? '#e6edf3' : isHidden ? '#5c2b28' : isFork ? FORK_COLOR : '#30363d'}`,
                         borderRadius: 6,
                         cursor: 'pointer',
                         font: 'inherit',
@@ -355,9 +357,13 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply })
                           {post.authorId?.username || '—'}
                         </span>
                       </span>
-                      <span style={{ display: 'block', padding: '6px 10px 0', fontSize: 11.5, lineHeight: 1.45, color: '#8b949e', overflow: 'hidden' }}>
-                        {(post.content || '').slice(0, sm ? 52 : 78)}…
-                      </span>
+                      {isHidden ? (
+                        <span style={{ display: 'block', padding: '6px 10px 0', fontSize: 11.5, lineHeight: 1.45, color: '#ffb4ad' }}>⚠ Oculto por reportes</span>
+                      ) : (
+                        <span style={{ display: 'block', padding: '6px 10px 0', fontSize: 11.5, lineHeight: 1.45, color: '#8b949e', overflow: 'hidden' }}>
+                          {(post.content || '').slice(0, sm ? 52 : 78)}…
+                        </span>
+                      )}
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px 9px', marginTop: 'auto' }}>
                         <span style={sourceChipStyle(post.sourceWeight)}>{post.sourceType}</span>
                       </span>
@@ -402,34 +408,36 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply })
               Nodo seleccionado
             </div>
             <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 9 }}>
-              {selected.postType === 'fork' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '8px 10px', border: `1px dashed ${FORK_COLOR}`, borderRadius: 6, background: '#12171f' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>↳ Bifurcación: {selected.forkLabel}</span>
-                  <span style={{ fontSize: 11.5, color: '#6e7681' }}>{selected.forkRationale}</span>
+              <PostModeration post={selected} onReport={onReport} onAppeal={onAppeal}>
+                {selected.postType === 'fork' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '8px 10px', border: `1px dashed ${FORK_COLOR}`, borderRadius: 6, background: '#12171f', marginBottom: 9 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>↳ Bifurcación: {selected.forkLabel}</span>
+                    <span style={{ fontSize: 11.5, color: '#6e7681' }}>{selected.forkRationale}</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 9 }}>
+                  <ReliabilityBadge value={selected.reliabilityAgg} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3' }}>{selected.authorId?.username || '—'}</span>
                 </div>
-              )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <ReliabilityBadge value={selected.reliabilityAgg} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3' }}>{selected.authorId?.username || '—'}</span>
-              </div>
-              {selected.title && <div style={{ fontSize: 14, fontWeight: 600, color: '#e6edf3' }}>{selected.title}</div>}
-              <div style={{ fontSize: 13, lineHeight: 1.6, color: '#c9d1d9' }}>{selected.content}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={sourceChipStyle(selected.sourceWeight)}>
-                  {selected.sourceType} {selected.sourceWeight.toFixed(2)}
-                </span>
-                <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 11, color: '#6e7681' }}>
-                  {selected.childCount} en rama · nivel {selected.depth}
-                </span>
-              </div>
-              {user && (
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingTop: 3 }}>
-                  <button onClick={() => setReplying((r) => !r)} style={sideActionStyle}>
-                    {replying ? 'Cancelar' : 'Responder'}
-                  </button>
+                {selected.title && <div style={{ fontSize: 14, fontWeight: 600, color: '#e6edf3', marginBottom: 9 }}>{selected.title}</div>}
+                <div style={{ fontSize: 13, lineHeight: 1.6, color: '#c9d1d9', marginBottom: 9 }}>{selected.content}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={sourceChipStyle(selected.sourceWeight)}>
+                    {selected.sourceType} {selected.sourceWeight.toFixed(2)}
+                  </span>
+                  <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 11, color: '#6e7681' }}>
+                    {selected.childCount} en rama · nivel {selected.depth}
+                  </span>
                 </div>
-              )}
-              {user && replying && <ReplyForm sourceWeights={sourceWeights} onSubmit={handleReplySubmit} onCancel={() => setReplying(false)} />}
+                {user && selected.status !== 'hidden' && (
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingTop: 9 }}>
+                    <button onClick={() => setReplying((r) => !r)} style={sideActionStyle}>
+                      {replying ? 'Cancelar' : 'Responder'}
+                    </button>
+                  </div>
+                )}
+                {user && replying && <ReplyForm sourceWeights={sourceWeights} onSubmit={handleReplySubmit} onCancel={() => setReplying(false)} />}
+              </PostModeration>
             </div>
           </div>
 
@@ -441,38 +449,45 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply })
               </span>
             </div>
             {selectedChildren.length === 0 && <div style={{ padding: 12, fontSize: 12.5, color: '#6e7681' }}>Sin respuestas todavía.</div>}
-            {selectedChildren.map((child) => (
-              <button
-                key={child._id}
-                onClick={() => setSelectedId(child._id)}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 9,
-                  width: '100%',
-                  padding: 13,
-                  background: child.postType === 'fork' ? '#12171f' : '#161b22',
-                  border: `1px ${child.postType === 'fork' ? 'dashed' : 'solid'} ${child.postType === 'fork' ? FORK_COLOR : '#30363d'}`,
-                  borderRadius: 6,
-                  borderTop: 'none',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  font: 'inherit',
-                  color: 'inherit'
-                }}
-              >
-                {child.postType === 'fork' && (
-                  <span style={{ fontSize: 11.5, fontWeight: 600, color: '#e6edf3' }}>↳ {child.forkLabel}</span>
-                )}
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <ReliabilityBadge value={child.reliabilityAgg} />
-                  <span style={{ fontSize: 12.5, color: '#c9d1d9' }}>{child.authorId?.username || '—'}</span>
-                </span>
-                <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 10.5, color: '#6e7681' }}>
-                  {child.sourceType} {child.sourceWeight.toFixed(2)} · {child.childCount} resp.
-                </span>
-              </button>
-            ))}
+            {selectedChildren.map((child) => {
+              const childHidden = child.status === 'hidden';
+              return (
+                <button
+                  key={child._id}
+                  onClick={() => setSelectedId(child._id)}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 9,
+                    width: '100%',
+                    padding: 13,
+                    background: childHidden ? '#1a1011' : child.postType === 'fork' ? '#12171f' : '#161b22',
+                    border: `1px ${child.postType === 'fork' ? 'dashed' : 'solid'} ${childHidden ? '#5c2b28' : child.postType === 'fork' ? FORK_COLOR : '#30363d'}`,
+                    borderRadius: 6,
+                    borderTop: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    font: 'inherit',
+                    color: 'inherit'
+                  }}
+                >
+                  {child.postType === 'fork' && (
+                    <span style={{ fontSize: 11.5, fontWeight: 600, color: '#e6edf3' }}>↳ {child.forkLabel}</span>
+                  )}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ReliabilityBadge value={child.reliabilityAgg} />
+                    <span style={{ fontSize: 12.5, color: '#c9d1d9' }}>{child.authorId?.username || '—'}</span>
+                  </span>
+                  {childHidden ? (
+                    <span style={{ fontSize: 11, color: '#ffb4ad' }}>⚠ Oculto por reportes</span>
+                  ) : (
+                    <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 10.5, color: '#6e7681' }}>
+                      {child.sourceType} {child.sourceWeight.toFixed(2)} · {child.childCount} resp.
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
