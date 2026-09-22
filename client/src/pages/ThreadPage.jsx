@@ -141,6 +141,7 @@ export default function ThreadPage() {
             onReply={handleReply}
             onReport={handleReport}
             onAppeal={handleAppeal}
+            onViewClassic={() => setView('classic')}
           />
         ))}
     </div>

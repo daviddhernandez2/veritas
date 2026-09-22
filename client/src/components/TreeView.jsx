@@ -7,6 +7,7 @@ import Avatar from './Avatar.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const FORK_COLOR = colors.accent.fork;
+const SELECTED_EXCERPT_LENGTH = 180;
 
 function sourceChipStyle(weight) {
   const color = reliabilityGradient(weight);
@@ -31,7 +32,9 @@ function sourceChipStyle(weight) {
 // v2.dc.html:984-1019), adaptado a los posts reales.
 function computeLayout(rootPost, childrenByParent, collapsed, sm) {
   const NW = sm ? 138 : 176;
-  const NH = sm ? 92 : 104;
+  // Un poco más altas que en el mockup original: el nombre de usuario ya
+  // no se trunca con "…", puede ocupar dos líneas.
+  const NH = sm ? 104 : 118;
   const HGAP = sm ? 14 : 22;
   const VGAP = sm ? 52 : 74;
   const PAD = sm ? 20 : 40;
@@ -76,7 +79,7 @@ function computeLayout(rootPost, childrenByParent, collapsed, sm) {
   return { nodes, edges, w: Math.max(maxX + PAD, NW + PAD * 2), h: Math.max(maxY + PAD + 26, NH + PAD * 2), NW, NH };
 }
 
-export default function TreeView({ posts, initialPath, sourceWeights, onReply, onReport, onAppeal }) {
+export default function TreeView({ posts, initialPath, sourceWeights, onReply, onReport, onAppeal, onViewClassic }) {
   const { user } = useAuth();
   const byId = useMemo(() => new Map(posts.map((p) => [p._id, p])), [posts]);
   const childrenByParent = useMemo(() => {
@@ -350,10 +353,15 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                           <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.forkLabel}</span>
                         </span>
                       )}
+                      {post.title && (
+                        <span style={{ display: 'block', padding: '8px 10px 0', fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {post.title}
+                        </span>
+                      )}
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px 0' }}>
                         <ReliabilityBadge value={post.reliabilityAgg} />
                         <Avatar username={post.authorId?.username} />
-                        <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                           {post.authorId?.username || '—'}
                         </span>
                       </span>
@@ -421,7 +429,17 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                   <span style={{ fontSize: typography.size.body, fontWeight: typography.weight.semibold, color: colors.text.primary }}>{selected.authorId?.username || '—'}</span>
                 </div>
                 {selected.title && <div style={{ fontSize: typography.size.md, fontWeight: typography.weight.semibold, color: colors.text.primary, marginBottom: 9 }}>{selected.title}</div>}
-                <div style={{ fontSize: typography.size.body, lineHeight: 1.6, color: colors.text.body, marginBottom: 9 }}>{selected.content}</div>
+                <div style={{ fontSize: typography.size.body, lineHeight: 1.6, color: colors.text.body, marginBottom: 4 }}>
+                  {selected.content.length > SELECTED_EXCERPT_LENGTH ? `${selected.content.slice(0, SELECTED_EXCERPT_LENGTH)}…` : selected.content}
+                </div>
+                {onViewClassic && (
+                  <button
+                    onClick={onViewClassic}
+                    style={{ background: 'none', border: 'none', padding: 0, fontSize: typography.size.sm, color: colors.accent.link, cursor: 'pointer', marginBottom: 9, display: 'block' }}
+                  >
+                    Ver completo en la vista clásica →
+                  </button>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
                   <span style={sourceChipStyle(selected.sourceWeight)}>
                     {selected.sourceType} {selected.sourceWeight.toFixed(2)}
