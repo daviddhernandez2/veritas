@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { reliabilityColor } from '../utils/reliability.js';
+import ReliabilityBadge from './ReliabilityBadge.jsx';
 
 const WIDTH = 640;
 const RADIUS = WIDTH / 6;
@@ -17,9 +18,50 @@ function labelVisible(d) {
   return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
 }
 
+// Opacidad de un arco: visible/invisible según el nivel de zoom actual,
+// y además atenuado si hay un participante seleccionado en el panel
+// lateral y este arco no es suyo.
+function arcOpacity(d, visible, highlightedAuthor) {
+  if (!visible) return 0;
+  const base = d.children ? 0.85 : 0.7;
+  if (!highlightedAuthor) return base;
+  return d.data.authorId?._id === highlightedAuthor ? base : 0.12;
+}
+
 export default function Sunburst({ posts }) {
   const svgRef = useRef(null);
+  const pathRef = useRef(null);
+  const highlightedAuthorRef = useRef(null);
   const [tooltip, setTooltip] = useState(null);
+  const [focus, setFocus] = useState(null);
+  const [highlightedAuthor, setHighlightedAuthor] = useState(null);
+
+  useEffect(() => {
+    highlightedAuthorRef.current = highlightedAuthor;
+  }, [highlightedAuthor]);
+
+  // Reaplica la opacidad al instante cuando cambia el participante
+  // resaltado, sin tener que rehacer todo el layout de D3.
+  useEffect(() => {
+    const path = pathRef.current;
+    if (!path) return;
+    path.attr('fill-opacity', (d) => arcOpacity(d, arcVisible(d.current), highlightedAuthor));
+  }, [highlightedAuthor]);
+
+  const participants = useMemo(() => {
+    const byAuthor = new Map();
+    for (const post of posts || []) {
+      const author = post.authorId;
+      if (!author?._id) continue;
+      const entry = byAuthor.get(author._id) || { id: author._id, username: author.username, weights: [], count: 0 };
+      entry.weights.push(post.sourceWeight);
+      entry.count += 1;
+      byAuthor.set(author._id, entry);
+    }
+    return Array.from(byAuthor.values())
+      .map((u) => ({ ...u, mean: u.weights.reduce((a, b) => a + b, 0) / u.weights.length }))
+      .sort((a, b) => b.mean - a.mean || b.count - a.count);
+  }, [posts]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
@@ -40,6 +82,7 @@ export default function Sunburst({ posts }) {
 
     d3.partition().size([2 * Math.PI, root.height + 1])(root);
     root.each((d) => (d.current = d));
+    setFocus(root.data);
 
     const arc = d3
       .arc()
@@ -69,9 +112,10 @@ export default function Sunburst({ posts }) {
       .attr('fill', (d) => reliabilityColor(d.data.reliabilityAgg))
       .attr('stroke', (d) => (d.data.postType === 'fork' ? '#d29922' : '#0d1117'))
       .attr('stroke-width', (d) => (d.data.postType === 'fork' ? 2 : 0.5))
-      .attr('fill-opacity', (d) => (arcVisible(d.current) ? (d.children ? 0.85 : 0.7) : 0))
+      .attr('fill-opacity', (d) => arcOpacity(d, arcVisible(d.current), highlightedAuthorRef.current))
       .attr('pointer-events', (d) => (arcVisible(d.current) ? 'auto' : 'none'))
       .attr('d', (d) => arc(d.current));
+    pathRef.current = path;
 
     path
       .filter((d) => d.children)
@@ -101,13 +145,14 @@ export default function Sunburst({ posts }) {
       .append('circle')
       .datum(root)
       .attr('r', RADIUS)
-      .attr('fill', 'none')
+      .attr('fill', reliabilityColor(root.data.reliabilityAgg))
       .attr('pointer-events', 'all')
       .style('cursor', 'pointer')
       .on('click', clicked);
 
     function clicked(event, p) {
-      parent.datum(p.parent || root);
+      parent.datum(p.parent || root).attr('fill', reliabilityColor((p.parent || root).data.reliabilityAgg));
+      setFocus(p.data);
 
       root.each(
         (d) =>
@@ -130,7 +175,7 @@ export default function Sunburst({ posts }) {
         .filter(function (d) {
           return +this.getAttribute('fill-opacity') || arcVisible(d.target);
         })
-        .attr('fill-opacity', (d) => (arcVisible(d.target) ? (d.children ? 0.85 : 0.7) : 0))
+        .attr('fill-opacity', (d) => arcOpacity(d, arcVisible(d.target), highlightedAuthorRef.current))
         .attr('pointer-events', (d) => (arcVisible(d.target) ? 'auto' : 'none'))
         .attrTween('d', (d) => () => arc(d.current));
 
@@ -148,6 +193,7 @@ export default function Sunburst({ posts }) {
       const y = ((d.y0 + d.y1) / 2) * RADIUS;
       return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts]);
 
   if (!posts || posts.length <= 1) {
@@ -155,37 +201,101 @@ export default function Sunburst({ posts }) {
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      <svg ref={svgRef} />
-      {tooltip && (
-        <div
-          style={{
-            position: 'fixed',
-            left: tooltip.x + 12,
-            top: tooltip.y + 12,
-            background: '#161b22',
-            border: '1px solid #30363d',
-            borderRadius: 6,
-            padding: '8px 10px',
-            fontSize: 12,
-            maxWidth: 260,
-            pointerEvents: 'none',
-            zIndex: 10
-          }}
-        >
-          {tooltip.post.title && <div style={{ fontWeight: 600, marginBottom: 4 }}>{tooltip.post.title}</div>}
-          <div style={{ opacity: 0.85, marginBottom: 4 }}>
-            {tooltip.post.content?.slice(0, 140)}
-            {tooltip.post.content?.length > 140 ? '…' : ''}
+    <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <div style={{ flex: '1 1 480px', minWidth: 0 }}>
+        <div style={{ position: 'relative' }}>
+          <svg ref={svgRef} />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1,
+              pointerEvents: 'none'
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0d1117' }}>
+              {focus?.parentId ? 'Rama' : 'Raíz'}
+            </div>
+            <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 24, fontWeight: 600, color: '#0d1117', lineHeight: 1 }}>
+              {focus?.reliabilityAgg == null ? '—' : focus.reliabilityAgg.toFixed(2)}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, opacity: 0.7 }}>
-            <span>Fuente: {tooltip.post.sourceType}</span>
-            <span>Fiabilidad: {tooltip.post.reliabilityAgg == null ? '—' : tooltip.post.reliabilityAgg.toFixed(2)}</span>
-          </div>
-          {tooltip.post.postType === 'fork' && <div style={{ color: '#d29922', marginTop: 4 }}>↳ Bifurcación: {tooltip.post.forkLabel}</div>}
+          {tooltip && (
+            <div
+              style={{
+                position: 'fixed',
+                left: tooltip.x + 12,
+                top: tooltip.y + 12,
+                background: '#161b22',
+                border: '1px solid #30363d',
+                borderRadius: 6,
+                padding: '8px 10px',
+                fontSize: 12,
+                maxWidth: 260,
+                pointerEvents: 'none',
+                zIndex: 10
+              }}
+            >
+              {tooltip.post.title && <div style={{ fontWeight: 600, marginBottom: 4 }}>{tooltip.post.title}</div>}
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{tooltip.post.authorId?.username || '—'}</div>
+              <div style={{ opacity: 0.85, marginBottom: 4 }}>
+                {tooltip.post.content?.slice(0, 140)}
+                {tooltip.post.content?.length > 140 ? '…' : ''}
+              </div>
+              <div style={{ display: 'flex', gap: 8, opacity: 0.7 }}>
+                <span>Fuente: {tooltip.post.sourceType}</span>
+                <span>Fiabilidad: {tooltip.post.reliabilityAgg == null ? '—' : tooltip.post.reliabilityAgg.toFixed(2)}</span>
+              </div>
+              {tooltip.post.postType === 'fork' && <div style={{ color: '#d29922', marginTop: 4 }}>↳ Bifurcación: {tooltip.post.forkLabel}</div>}
+            </div>
+          )}
         </div>
-      )}
-      <Legend />
+        <Legend />
+      </div>
+
+      <div style={{ width: 240, flexShrink: 0, border: '1px solid #30363d', borderRadius: 6, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, padding: '8px 12px', background: '#161b22', borderBottom: '1px solid #30363d' }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>Participantes</span>
+          <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 11, color: '#6e7681', marginLeft: 'auto' }}>
+            {participants.length}
+          </span>
+        </div>
+        {participants.length === 0 && <div style={{ padding: 12, fontSize: 12.5, color: '#6e7681' }}>Sin participantes todavía.</div>}
+        {participants.map((u) => (
+          <button
+            key={u.id}
+            onClick={() => setHighlightedAuthor((cur) => (cur === u.id ? null : u.id))}
+            style={{
+              display: 'flex',
+              gap: 10,
+              alignItems: 'center',
+              width: '100%',
+              padding: '9px 12px',
+              background: highlightedAuthor === u.id ? '#161b22' : 'transparent',
+              border: 'none',
+              borderBottom: '1px solid #21262d',
+              cursor: 'pointer',
+              textAlign: 'left',
+              font: 'inherit',
+              color: 'inherit'
+            }}
+          >
+            <ReliabilityBadge value={u.mean} />
+            <span style={{ minWidth: 0, flex: 1 }}>
+              <span style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#e6edf3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {u.username}
+              </span>
+              <span style={{ display: 'block', fontSize: 11, color: '#6e7681' }}>
+                {u.count} {u.count === 1 ? 'intervención' : 'intervenciones'}
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

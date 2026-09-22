@@ -74,7 +74,8 @@ export async function getThreadTree(req, res) {
     .sort({ depth: 1, createdAt: 1 })
     .select(
       "authorId parentId depth title content postType forkLabel forkRationale sourceType sourceWeight reliabilityAgg childCount createdAt",
-    );
+    )
+    .populate("authorId", "username");
 
   res.json({ posts });
 }

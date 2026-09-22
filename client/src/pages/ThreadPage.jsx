@@ -83,7 +83,7 @@ export default function ThreadPage() {
   });
 
   return (
-    <div style={{ maxWidth: view === 'tree' ? 1100 : 720, margin: '40px auto', padding: '0 16px' }}>
+    <div style={{ maxWidth: view === 'tree' || view === 'sunburst' ? 1100 : 720, margin: '40px auto', padding: '0 16px' }}>
       <Link to="/">← Volver a hilos</Link>
 
       <div style={{ display: 'flex', gap: 8, margin: '16px 0' }}>

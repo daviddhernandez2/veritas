@@ -36,6 +36,7 @@ export default function PostNode({ post, childrenByParent, sourceWeights, onRepl
           </div>
         )}
         {post.title && <h3 style={{ margin: '0 0 6px' }}>{post.title}</h3>}
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{post.authorId?.username || '—'}</div>
         <p style={{ margin: 0 }}>{post.content}</p>
         <div style={{ fontSize: 12, opacity: 0.7, marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
           <span>Fuente: {post.sourceType} (peso {post.sourceWeight})</span>
