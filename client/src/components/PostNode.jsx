@@ -44,7 +44,7 @@ export default function PostNode({ post, childrenByParent, sourceWeights, onRepl
             <Avatar username={post.authorId?.username} />
             <span style={{ fontSize: typography.size.body, fontWeight: typography.weight.semibold }}>{post.authorId?.username || '—'}</span>
           </div>
-          <p style={{ margin: 0, color: colors.text.body }}>{post.content}</p>
+          <p style={{ margin: 0, color: colors.text.body, whiteSpace: 'pre-wrap' }}>{post.content}</p>
           <div style={{ fontSize: typography.size.sm, opacity: 0.7, marginTop: spacing.xs + 2, display: 'flex', alignItems: 'center', gap: spacing.sm }}>
             <span>Fuente: {post.sourceType} (peso {post.sourceWeight})</span>
             <ReliabilityBadge value={post.reliabilityAgg} />
