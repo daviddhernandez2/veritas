@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { margin: 0; padding: 0; background: #0d1117; }
+  * { box-sizing: border-box; }
+  a { color: #4493f8; text-decoration: none; }
+  a:hover { color: #6cb0fa; text-decoration: underline; }
+  ::selection { background: #1f3b5c; color: #e6edf3; }
+  input, textarea, button { font-family: inherit; }
+  textarea::placeholder, input::placeholder { color: #6e7681; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;">
+
+  <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 24px;">
+      <div style="width: 100%; max-width: 332px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 26px;">
+          <div style="display: flex; align-items: center; gap: 9px;">
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(from 180deg, #f85149, #d29922 45%, #3fb950 90%, #f85149); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <div style="width: 9px; height: 9px; border-radius: 50%; background: #0d1117;"></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">Veritas</div>
+          </div>
+        </div>
+
+        <div style="border: 1px solid #30363d; border-radius: 6px; background: #161b22; padding: 18px;">
+          <div style="display: flex; border-bottom: 1px solid #30363d; margin: -18px -18px 18px; padding: 0 6px;">
+            <button onClick="{{ setLogin }}" style="{{ tabLoginStyle }}">Entrar</button>
+            <button onClick="{{ setRegister }}" style="{{ tabRegStyle }}">Crear cuenta</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ true }}">
+              <label style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 13px; font-weight: 600;">Nombre público</span>
+                <input type="text" placeholder="m.arregui" style="background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 7px 11px; color: #e6edf3; font-size: 14px; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);">
+              </label>
+            </sc-if>
+            <label style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 13px; font-weight: 600;">Correo</span>
+              <input type="email" placeholder="tu@correo.org" style="background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 7px 11px; color: #e6edf3; font-size: 14px; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);">
+            </label>
+            <label style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="display: flex; align-items: baseline; justify-content: space-between; font-size: 13px; font-weight: 600;">
+                <span>Contraseña</span>
+                <a href="#0" style="font-size: 12px; font-weight: 400;">¿Olvidada?</a>
+              </span>
+              <input type="password" placeholder="••••••••••" style="background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 7px 11px; color: #e6edf3; font-size: 14px; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);">
+            </label>
+
+
+            <button onClick="{{ enter }}" style="margin-top: 2px; background: #238636; color: #ffffff; border: 1px solid rgba(240,246,252,0.1); border-radius: 6px; padding: 9px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="background: #2ea043;">{{ authCta }}</button>
+            
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <header style="{{ headerStyle }}">
+        <button onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 8px; background: none; border: none; padding: 0; cursor: pointer; color: #e6edf3;">
+          <div style="width: 22px; height: 22px; border-radius: 50%; background: conic-gradient(from 180deg, #f85149, #d29922 45%, #3fb950 90%, #f85149); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: #161b22;"></div>
+          </div>
+          <span style="font-size: 15px; font-weight: 600;">Veritas</span>
+        </button>
+        <nav style="{{ navWrapStyle }}">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4">
+            <button onClick="{{ n.click }}" style="{{ n.style }}">{{ n.label }}</button>
+          </sc-for>
+        </nav>
+        <div style="{{ searchWrapStyle }}">
+          <input type="text" placeholder="Buscar…" style="width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 5px 10px; color: #e6edf3; font-size: 13px; outline: none;" style-focus="border-color: #4493f8;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+          <div style="display: flex; align-items: center; gap: 7px; padding: 3px 9px 3px 3px; border: 1px solid #30363d; border-radius: 999px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #3fb950;"></span>
+            <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: #8b949e;">0.78</span>
+          </div>
+          <button onClick="{{ goProfile }}" style="width: 26px; height: 26px; border-radius: 50%; background: #21262d; border: 1px solid #30363d; color: #e6edf3; font-size: 10px; font-weight: 600; cursor: pointer;" style-hover="border-color: #8b949e;">MA</button>
+        </div>
+      </header>
+
+      <main style="min-width: 0;">
+
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ homePad }}">
+            <div style="{{ homeHeadStyle }}">
+              <div>
+                <h1 style="font-size: 20px; font-weight: 600; margin: 0;">Hilos activos</h1>
+              </div>
+              <button onClick="{{ goCompose }}" style="background: #238636; color: #fff; border: 1px solid rgba(240,246,252,0.1); border-radius: 6px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="background: #2ea043;">Abrir hilo</button>
+            </div>
+
+            <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 9px 14px; background: #161b22; border-bottom: 1px solid #30363d;">
+                <span style="font-size: 12px; color: #8b949e; margin-right: auto;">{{ threadCount }} hilos</span>
+                <sc-for list="{{ homeFilters }}" as="f" hint-placeholder-count="3">
+                  <button onClick="{{ f.click }}" style="{{ f.style }}">{{ f.label }}</button>
+                </sc-for>
+              </div>
+              <sc-for list="{{ threads }}" as="t" hint-placeholder-count="6">
+                <button onClick="{{ t.click }}" style="{{ t.cardStyle }}">
+                  <div style="width: 44px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                    <span style="{{ t.badgeStyle }}">{{ t.scoreLabel }}</span>
+                    <span style="{{ t.trendStyle }}">{{ t.trendIcon }}</span>
+                  </div>
+                  <div style="min-width: 0; flex: 1; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                      <span style="font-size: 15px; font-weight: 600; color: #e6edf3; line-height: 1.35; text-wrap: pretty;">{{ t.title }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #8b949e;">
+                      <span style="border: 1px solid #30363d; border-radius: 999px; padding: 1px 8px; font-size: 11px; white-space: nowrap;">{{ t.topic }}</span>
+                      <span style="white-space: nowrap;">{{ t.author }}</span><span>·</span>
+                      <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap;">{{ t.replies }} respuestas</span>
+                      <span>·</span>
+                      <span style="white-space: nowrap;">{{ t.last }}</span>
+                    </div>
+                  </div>
+                  <sc-if value="{{ notSm }}" hint-placeholder-val="{{ true }}">
+                    <div style="width: 140px; flex-shrink: 0; display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                      <div style="width: 100%; height: 4px; border-radius: 2px; background: #21262d; overflow: hidden;">
+                        <div style="height: 100%; width: {{ t.pct }}%; background: {{ t.color }};"></div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isThread }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="{{ threadHeadStyle }}">
+              <div style="max-width: 1012px; margin: 0 auto;">
+                <button onClick="{{ goHome }}" style="background: none; border: none; color: #8b949e; font-size: 12px; cursor: pointer; padding: 0; margin-bottom: 10px;" style-hover="color: #4493f8;">← Hilos activos</button>
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                  <span style="{{ rootBadgeStyle }}flex-shrink:0;">{{ rootScoreLabel }}</span>
+                  <div style="min-width: 0;">
+                    <h1 style="font-size: 19px; font-weight: 600; line-height: 1.35; margin: 0 0 5px; text-wrap: pretty;">{{ rootTitle }}</h1>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #8b949e;">
+                      <span style="white-space: nowrap;">{{ rootAuthor }}</span><span>·</span>
+                      <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap;">{{ totalPosts }} intervenciones</span><span>·</span>
+                      <span style="white-space: nowrap;">hace 12 min</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="{{ tabsRowStyle }}">
+                  <div style="{{ tabsScrollStyle }}">
+                    <sc-for list="{{ viewTabs }}" as="v" hint-placeholder-count="3">
+                      <button onClick="{{ v.click }}" style="{{ v.style }}">{{ v.label }}</button>
+                    </sc-for>
+                  </div>
+                  <div style="{{ directOnlyWrapStyle }}">
+                    <button onClick="{{ toggleDirectOnly }}" style="{{ directOnlyStyle }}">
+                      <span style="{{ directOnlyDot }}"></span>
+                      <span>Solo respuestas directas</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <sc-if value="{{ isSunburst }}" hint-placeholder-val="{{ true }}">
+              <div style="{{ sunburstGridStyle }}">
+                <div style="border: 1px solid #30363d; border-radius: 6px; background: #0d1117; overflow: hidden;">
+                  <div style="padding: 16px; display: flex; justify-content: center; position: relative;">
+                  <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; pointer-events: none;">
+                    <div style="font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #0d1117;">Raíz</div>
+                    <div style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 24px; font-weight: 600; color: #0d1117; line-height: 1;">{{ rootMetricLabel }}</div>
+                  </div>
+                  <svg viewBox="-250 -250 500 500" style="width: 100%; max-width: 540px; height: auto; display: block;" onMouseLeave="{{ clearHover }}">
+                    <defs>
+                      <pattern id="forkHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <line x1="0" y1="0" x2="0" y2="7" stroke="#0d1117" strokeWidth="2.4" opacity="0.55"></line>
+                      </pattern>
+                    </defs>
+                    <sc-for list="{{ rings }}" as="r" hint-placeholder-count="3">
+                      <circle cx="0" cy="0" r="{{ r.r }}" fill="none" stroke="#21262d" strokeWidth="1"></circle>
+                    </sc-for>
+                    <sc-for list="{{ segs }}" as="s" hint-placeholder-count="14">
+                      <path d="{{ s.d }}" fill="{{ s.fill }}" stroke="#0d1117" strokeWidth="1.5" opacity="{{ s.op }}" style="cursor: pointer;" onMouseMove="{{ s.enter }}" onClick="{{ s.click }}"></path>
+                    </sc-for>
+                    <sc-for list="{{ forkSegs }}" as="fs" hint-placeholder-count="3">
+                      <path d="{{ fs.d }}" fill="url(#forkHatch)" stroke="#e6edf3" strokeWidth="1.6" strokeDasharray="4 3" opacity="{{ fs.op }}" style="cursor: pointer;" onMouseMove="{{ fs.enter }}" onClick="{{ fs.click }}"></path>
+                    </sc-for>
+                    <circle cx="0" cy="0" r="52" fill="{{ rootColor }}" stroke="#0d1117" strokeWidth="2" style="cursor: pointer;" onMouseMove="{{ rootEnter }}" onClick="{{ rootClick }}"></circle>
+                  </svg>
+                  </div>
+                  
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden;">
+                    <div style="display: flex; align-items: baseline; gap: 7px; padding: 8px 12px; background: #161b22; border-bottom: 1px solid #30363d;">
+                      <span style="font-size: 12px; font-weight: 600; color: #e6edf3;">Participantes</span>
+                      <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681; margin-left: auto;">{{ userCount }}</span>
+                    </div>
+                    <sc-for list="{{ users }}" as="u" hint-placeholder-count="8">
+                      <button onClick="{{ u.click }}" style="{{ u.rowStyle }}">
+                        <span style="{{ u.badgeStyle }}">{{ u.mean }}</span>
+                        <span style="min-width: 0; flex: 1; text-align: left;">
+                          <span style="display: block; font-size: 12.5px; font-weight: 600; color: #e6edf3;">{{ u.name }}</span>
+                          <span style="display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681;">{{ u.n }} · {{ u.top }}</span>
+                        </span>
+                        <span style="width: 42px; flex-shrink: 0;">
+                          <span style="display: block; height: 4px; border-radius: 2px; background: #21262d; overflow: hidden;">
+                            <span style="display: block; height: 100%; width: {{ u.pct }}%; background: {{ u.color }};"></span>
+                          </span>
+                        </span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isTree }}" hint-placeholder-val="{{ true }}">
+              <div style="{{ treePadStyle }}">
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
+                  <sc-for list="{{ crumbs }}" as="cr" hint-placeholder-count="3">
+                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                      <button onClick="{{ cr.click }}" style="{{ cr.style }}">
+                        <span>{{ cr.prefix }}</span>
+                        <span>{{ cr.label }}</span>
+                      </button>
+                      <sc-if value="{{ cr.sep }}" hint-placeholder-val="{{ true }}">
+                        <span style="font-size: 12px; color: #6e7681;">›</span>
+                      </sc-if>
+                    </span>
+                  </sc-for>
+                </div>
+
+                <div style="{{ treeGridStyle }}">
+                  <div style="border: 1px solid #30363d; border-radius: 6px; background: #0d1117; overflow: hidden; display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 7px 10px; background: #161b22; border-bottom: 1px solid #30363d;">
+                      <span style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                        <sc-if value="{{ notSm }}" hint-placeholder-val="{{ true }}">
+                          <span style="display: inline-flex; align-items: center; gap: 12px;">
+                            <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #8b949e;">
+                              <span style="width: 18px; height: 0; border-top: 1px dashed #6e7681; display: inline-block;"></span>
+                              bifurcación
+                            </span>
+                            <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #8b949e;">
+                              <span style="width: 18px; height: 0; border-top: 1px solid #30363d; display: inline-block;"></span>
+                              respuesta directa
+                            </span>
+                          </span>
+                        </sc-if>
+                        <button onClick="{{ zoomOut }}" style="{{ zoomBtnStyle }}">−</button>
+                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: #8b949e; width: 38px; text-align: center;">{{ zoomLabel }}</span>
+                        <button onClick="{{ zoomIn }}" style="{{ zoomBtnStyle }}">+</button>
+                        <button onClick="{{ resetView }}" style="{{ fitBtnStyle }}">Centrar</button>
+                      </span>
+                    </div>
+                    <div ref="{{ vpRef }}" onMouseDown="{{ panStart }}" onMouseMove="{{ panMove }}" onMouseUp="{{ panEnd }}" onMouseLeave="{{ panEnd }}" onWheel="{{ onWheel }}" style="{{ canvasStyle }}">
+                      <div style="position: absolute; inset: 0; background-image: radial-gradient(#1b2229 1px, transparent 1px); background-size: 22px 22px; background-position: {{ gridX }}px {{ gridY }}px; pointer-events: none;"></div>
+                      <div style="{{ stageStyle }}">
+                        <svg width="{{ canvasW }}" height="{{ canvasH }}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none;">
+                          <sc-for list="{{ edges }}" as="e" hint-placeholder-count="8">
+                            <path d="{{ e.d }}" fill="none" stroke="{{ e.stroke }}" strokeWidth="{{ e.width }}" strokeDasharray="{{ e.dash }}"></path>
+                          </sc-for>
+                        </svg>
+                        <sc-for list="{{ treeNodes }}" as="n" hint-placeholder-count="8">
+                          <div style="{{ n.wrapStyle }}">
+                            <button onClick="{{ n.click }}" style="{{ n.cardStyle }}">
+                              <span style="{{ n.topStyle }}"></span>
+                              <sc-if value="{{ n.isFork }}" hint-placeholder-val="{{ false }}">
+                                <span style="display: flex; align-items: center; gap: 5px; padding: 0 10px; margin-top: 8px;">
+                                  <span style="font-size: 11px; color: #8b949e;">↳</span>
+                                  <span style="font-size: 11.5px; font-weight: 600; color: #e6edf3; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ n.forkTitle }}</span>
+                                </span>
+                              </sc-if>
+                              <span style="display: flex; align-items: center; gap: 7px; padding: 8px 10px 0;">
+                                <span style="{{ n.badgeStyle }}">{{ n.score }}</span>
+                                <span style="font-size: 12.5px; font-weight: 600; color: #e6edf3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ n.author }}</span>
+                                <span style="{{ n.trendStyle }}">{{ n.trend }}</span>
+                              </span>
+                              <span style="display: block; padding: 6px 10px 0; font-size: 11.5px; line-height: 1.45; color: #8b949e; text-align: left; overflow: hidden;">{{ n.excerpt }}</span>
+                              <span style="display: flex; align-items: center; gap: 6px; padding: 7px 10px 9px; margin-top: auto;">
+                                <span style="{{ n.chipStyle }}">{{ n.source }}</span>
+                                <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; color: #6e7681; margin-left: auto;">{{ n.weight }}</span>
+                              </span>
+                            </button>
+                            <sc-if value="{{ n.hasKids }}" hint-placeholder-val="{{ false }}">
+                              <button onClick="{{ n.toggle }}" style="{{ n.toggleStyle }}">{{ n.toggleLabel }}</button>
+                            </sc-if>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden;">
+                      <div style="padding: 8px 12px; background: #161b22; border-bottom: 1px solid #30363d; font-size: 12px; font-weight: 600; color: #e6edf3;">Nodo seleccionado</div>
+                      <div style="padding: 12px; display: flex; flex-direction: column; gap: 9px;">
+                        <sc-if value="{{ selHidden }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #5c2b28; border-radius: 6px; background: #1a1011;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; border: 1px solid #5c2b28; background: #24120f; color: #ff8882; font-size: 10.5px; line-height: 1; flex-shrink: 0;">!</span>
+                            <span style="font-size: 11.5px; line-height: 1.5; color: #ffb4ad; text-wrap: pretty;">{{ selHiddenNote }}</span>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ selIsFork }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border: 1px dashed #6e7681; border-radius: 6px; background: #12171f;">
+                            <span style="font-size: 12px; font-weight: 600; color: #e6edf3; line-height: 1.4; text-wrap: pretty;">↳ Bifurcación: {{ selForkTitle }}</span>
+                            <span style="font-size: 11.5px; line-height: 1.5; color: #6e7681; text-wrap: pretty;">{{ selForkWhy }}</span>
+                          </div>
+                        </sc-if>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                          <span style="{{ selBadgeStyle }}">{{ selScore }}</span>
+                          <span style="font-size: 13px; font-weight: 600; color: #e6edf3;">{{ selAuthor }}</span>
+                          <span style="{{ selTrendTextStyle }}">{{ selTrend }} {{ selTrendText }}</span>
+                        </div>
+                        <div style="font-size: 13px; line-height: 1.6; color: #c9d1d9; text-wrap: pretty;">{{ selText }}</div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                          <span style="{{ selChipStyle }}">{{ selSource }} {{ selWeight }}</span>
+                          <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681;">{{ selCount }} en rama · nivel {{ selDepth }}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 3px;">
+                          <button onClick="{{ selReply }}" style="background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 4px 11px; font-size: 12px; font-weight: 600; color: #e6edf3; cursor: pointer;" style-hover="background: #30363d;">Responder</button>
+                          <button onClick="{{ selFork }}" style="background: transparent; border: 1px dashed #6e7681; border-radius: 6px; padding: 4px 11px; font-size: 12px; font-weight: 600; color: #8b949e; cursor: pointer;" style-hover="color: #e6edf3; border-color: #8b949e;">↳ Bifurcar</button>
+                          <button onClick="{{ selReport }}" style="background: transparent; border: 1px solid #30363d; border-radius: 6px; padding: 4px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: #8b949e; cursor: pointer;" style-hover="color: #ff8882; border-color: #5c2b28;">Reportar</button>
+                        </div>
+                        <sc-if value="{{ selReported }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid #30363d; border-radius: 6px; background: #12171f;">
+                            <span style="color: #3fb950; font-size: 12px;">✓</span>
+                            <span style="font-size: 12px; color: #8b949e;">Reporte enviado. Revisaremos este contenido.</span>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </div>
+
+                    <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden;">
+                      <div style="display: flex; align-items: baseline; gap: 8px; padding: 8px 12px; background: #161b22; border-bottom: 1px solid #30363d;">
+                        <span style="font-size: 12px; font-weight: 600; color: #e6edf3;">Ramas hijas directas</span>
+                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681; margin-left: auto;">{{ childCount }}</span>
+                      </div>
+                      <sc-for list="{{ childNodes }}" as="c" hint-placeholder-count="3">
+                        <button onClick="{{ c.click }}" style="{{ c.rowStyle }}">
+                          <span style="{{ c.badgeStyle }}">{{ c.score }}</span>
+                          <span style="min-width: 0; flex: 1; text-align: left;">
+                            <sc-if value="{{ c.isFork }}" hint-placeholder-val="{{ false }}">
+                              <span style="display: block; font-size: 11.5px; font-weight: 600; color: #e6edf3; line-height: 1.35; margin-bottom: 2px; text-wrap: pretty;">↳ {{ c.forkTitle }}</span>
+                            </sc-if>
+                            <span style="display: block; font-size: 12.5px; color: #c9d1d9;">{{ c.author }}</span>
+                            <span style="display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; color: #6e7681;">{{ c.source }} {{ c.weight }} · {{ c.count }} resp.</span>
+                          </span>
+                          <span style="{{ c.trendStyle }}">{{ c.trend }}</span>
+                        </button>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isClassic }}" hint-placeholder-val="{{ true }}">
+              <div style="{{ classicPadStyle }}">
+                <sc-for list="{{ flat }}" as="c" hint-placeholder-count="8">
+                  <div style="padding-left: {{ c.indent }}px;">
+                    <sc-if value="{{ c.isFork }}" hint-placeholder-val="{{ false }}">
+                      <div style="{{ c.forkHeadStyle }}">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                          <span style="font-size: 13px; color: #8b949e;">↳</span>
+                          <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #8b949e;">Bifurcación</span>
+                          <span style="font-size: 13.5px; font-weight: 600; color: #e6edf3; line-height: 1.4; text-wrap: pretty;">{{ c.forkTitle }}</span>
+                          <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681; margin-left: auto;">{{ c.count }} debajo</span>
+                        </div>
+                        <div style="font-size: 12px; line-height: 1.55; color: #6e7681; text-wrap: pretty;">{{ c.forkWhy }}</div>
+                      </div>
+                    </sc-if>
+                    <div style="display: flex; gap: 0;">
+                    <div style="width: 2px; flex-shrink: 0; background: {{ c.lineColor }};"></div>
+                    <div style="{{ c.bodyStyle }}">
+                      <sc-if value="{{ c.veiled }}" hint-placeholder-val="{{ false }}">
+                        <div style="display: flex; flex-direction: column; gap: 9px;">
+                          <div style="display: flex; align-items: center; gap: 9px; flex-wrap: wrap;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; border-radius: 4px; border: 1px solid #5c2b28; background: #24120f; color: #ff8882; font-size: 11px; line-height: 1; flex-shrink: 0;">!</span>
+                            <span style="font-size: 13px; color: #ffb4ad; line-height: 1.5; text-wrap: pretty;">{{ c.hiddenNote }}</span>
+                            <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #a4756f; margin-left: auto;">{{ c.reportCount }}</span>
+                          </div>
+                          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button onClick="{{ c.reveal }}" style="background: transparent; border: 1px solid #5c2b28; border-radius: 6px; padding: 4px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: #ffb4ad; cursor: pointer;" style-hover="border-color: #f85149; color: #ff8882;">Ver de todos modos</button>
+                            <sc-if value="{{ c.isMine }}" hint-placeholder-val="{{ false }}">
+                              <button onClick="{{ c.appeal }}" style="background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 4px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: #e6edf3; cursor: pointer;" style-hover="background: #30363d;">Apelar</button>
+                            </sc-if>
+                          </div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ c.notVeiled }}" hint-placeholder-val="{{ true }}">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 7px;">
+                          <button onClick="{{ c.toggle }}" style="{{ c.toggleStyle }}">{{ c.toggleIcon }}</button>
+                          <span style="font-size: 13px; font-weight: 600; color: #e6edf3;">{{ c.author }}</span>
+                          <span style="{{ c.chipStyle }}">{{ c.source }} {{ c.weight }}</span>
+                          <span style="font-size: 12px; color: #6e7681;">{{ c.time }}</span>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ c.open }}" hint-placeholder-val="{{ true }}">
+                        <div>
+                          <p style="font-size: 14.5px; line-height: 1.65; color: #c9d1d9; margin: 0 0 9px; max-width: 68ch; text-wrap: pretty;">{{ c.text }}</p>
+                          <div style="margin-bottom: 9px;">
+                            <a href="#0" style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;">{{ c.url }}</a>
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 14px;">
+                            <button onClick="{{ c.reply }}" style="background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #e6edf3; cursor: pointer;" style-hover="background: #30363d;">Responder</button>
+                            <button onClick="{{ c.forkFrom }}" style="background: transparent; border: 1px dashed #6e7681; border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #8b949e; cursor: pointer;" style-hover="color: #e6edf3; border-color: #8b949e;">↳ Bifurcar</button>
+                            <button onClick="{{ c.report }}" style="background: none; border: none; padding: 0; font-family: inherit; font-size: 12px; color: #8b949e; cursor: pointer;" style-hover="color: #ff8882;">Reportar</button>
+                            <button onClick="{{ c.toggle }}" style="background: none; border: none; padding: 0; font-size: 12px; color: #8b949e; cursor: pointer;" style-hover="color: #4493f8;">{{ c.collapseLabel }}</button>
+                          </div>
+                          <sc-if value="{{ c.isReported }}" hint-placeholder-val="{{ false }}">
+                            <div style="display: flex; align-items: center; gap: 7px; margin-top: 9px; padding: 7px 10px; border: 1px solid #30363d; border-radius: 6px; background: #12171f;">
+                              <span style="color: #3fb950; font-size: 12px;">✓</span>
+                              <span style="font-size: 12px; color: #8b949e;">Reporte enviado. Revisaremos este contenido.</span>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ c.closed }}" hint-placeholder-val="{{ true }}">
+                        <button onClick="{{ c.toggle }}" style="background: none; border: none; padding: 0; font-family: inherit; font-size: 12.5px; color: #6e7681; cursor: pointer; text-align: left;" style-hover="color: #4493f8;">{{ c.collapsedNote }}</button>
+                      </sc-if>
+                    </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isCompose }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ composeGridStyle }}">
+            <div>
+              <button onClick="{{ back }}" style="background: none; border: none; color: #8b949e; font-size: 12px; cursor: pointer; padding: 0; margin-bottom: 10px;" style-hover="color: #4493f8;">{{ backLabel }}</button>
+              <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 4px;">{{ composeTitle }}</h1>
+              <sc-if value="{{ isReply }}" hint-placeholder-val="{{ false }}">
+                <p style="margin: 0 0 20px; color: #8b949e; font-size: 13px;">A <strong style="color: #e6edf3; font-weight: 600;">{{ replyToAuthor }}</strong> · fiabilidad actual de la rama <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: {{ branchColor }}; font-weight: 600;">{{ branchScore }}</span></p>
+              </sc-if>
+
+              <div style="display: flex; flex-direction: column; gap: 20px;">
+                <sc-if value="{{ isNewThread }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Título del hilo</label>
+                      <input type="text" value="{{ threadTitle }}" onChange="{{ onTitle }}" placeholder="Una pregunta concreta y falsable" style="width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 11px; color: #e6edf3; font-size: 15px; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);">
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Tema</label>
+                      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <sc-for list="{{ topicChips }}" as="tp" hint-placeholder-count="6">
+                          <button onClick="{{ tp.click }}" style="{{ tp.style }}">{{ tp.label }}</button>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ isReply }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Tipo de intervención</label>
+                      <div style="{{ kindRowStyle }}">
+                        <sc-for list="{{ kindOptions }}" as="k" hint-placeholder-count="2">
+                          <button onClick="{{ k.click }}" style="{{ k.style }}">
+                            <span style="{{ k.labelStyle }}">{{ k.label }}</span>
+                          </button>
+                        </sc-for>
+                      </div>
+                    </div>
+                    <sc-if value="{{ isForkReply }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; flex-direction: column; gap: 14px; padding: 13px; border: 1px dashed #6e7681; border-radius: 6px; background: #12171f;">
+                        <div>
+                          <label style="display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; margin-bottom: 8px;">
+                            <span>Título corto del nuevo subtema</span>
+                            <span style="font-size: 11px; font-weight: 600; color: #f85149; border: 1px solid #f85149; border-radius: 999px; padding: 0 7px;">obligatorio</span>
+                          </label>
+                          <input type="text" value="{{ forkTitleVal }}" onChange="{{ onForkTitle }}" placeholder="Impacto económico de la medida" style="width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 11px; color: #e6edf3; font-size: 14px; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);">
+                        </div>
+                        <div>
+                          <label style="display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; margin-bottom: 8px;">
+                            <span>Motivo de conexión</span>
+                            <span style="font-size: 11px; font-weight: 600; color: #f85149; border: 1px solid #f85149; border-radius: 999px; padding: 0 7px;">obligatorio</span>
+                          </label>
+                          <input type="text" value="{{ forkWhyVal }}" onChange="{{ onForkWhy }}" placeholder="Por qué se relaciona con el post padre" style="width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 11px; color: #e6edf3; font-size: 14px; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);">
+                        </div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+                <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: #161b22; border-bottom: 1px solid #30363d;">
+                    <span style="font-size: 12px; font-weight: 600;">{{ bodyLabel }}</span>
+                    <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681;">{{ charCount }} car.</span>
+                  </div>
+                  <textarea value="{{ draft }}" onChange="{{ onText }}" placeholder="{{ bodyPlaceholder }}" style="width: 100%; min-height: 180px; resize: vertical; display: block; background: #0d1117; border: none; padding: 13px; color: #c9d1d9; font-size: 14.5px; line-height: 1.65; outline: none;"></textarea>
+                </div>
+
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                    <span style="font-size: 12px; font-weight: 600;">Tipo de fuente</span>
+                    <span style="font-size: 11px; font-weight: 600; color: #f85149; border: 1px solid #f85149; border-radius: 999px; padding: 0 7px;">obligatorio</span>
+                  </div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <sc-for list="{{ sourceChips }}" as="s" hint-placeholder-count="9">
+                      <button onClick="{{ s.click }}" style="{{ s.style }}">
+                        <span style="width: 8px; height: 8px; border-radius: 2px; background: {{ s.color }}; flex-shrink: 0;"></span>
+                        <span>{{ s.label }}</span>
+                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #8b949e;">{{ s.w }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div>
+                  <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px;">URL de la fuente</label>
+                  <input type="url" onChange="{{ onUrl }}" value="{{ url }}" placeholder="https://doi.org/10.1038/…" style="width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 11px; color: #e6edf3; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);">
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px; padding-top: 4px; border-top: 1px solid #21262d; padding-top: 16px;">
+                  <button onClick="{{ publish }}" style="{{ publishStyle }}">{{ publishLabel }}</button>
+                  <button onClick="{{ back }}" style="background: #21262d; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="background: #30363d;">Descartar</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="{{ composeSideStyle }}">
+              <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden;">
+                <div style="padding: 7px 12px; background: #161b22; border-bottom: 1px solid #30363d; font-size: 12px; font-weight: 600;">Previsualización</div>
+                <div style="padding: 12px; display: flex; gap: 12px;">
+                  <div style="width: 2px; background: {{ previewColor }}; flex-shrink: 0;"></div>
+                  <div style="min-width: 0;">
+                    <sc-if value="{{ isForkReply }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; margin-bottom: 9px; border: 1px dashed #6e7681; border-radius: 6px; background: #12171f;">
+                        <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
+                          <span style="font-size: 12px; color: #8b949e;">↳</span>
+                          <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #8b949e;">Bifurcación</span>
+                          <span style="font-size: 12.5px; font-weight: 600; color: #e6edf3; line-height: 1.4; text-wrap: pretty;">{{ forkPreviewTitle }}</span>
+                        </div>
+                        <div style="font-size: 11.5px; line-height: 1.5; color: #6e7681; text-wrap: pretty;">{{ forkPreviewWhy }}</div>
+                      </div>
+                    </sc-if>
+                    <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 6px;">
+                      <span style="font-size: 12.5px; font-weight: 600; color: #e6edf3;">m.arregui</span>
+                      <span style="{{ previewChipStyle }}">{{ previewSource }} {{ previewWeight }}</span>
+                    </div>
+                    <sc-if value="{{ isNewThread }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-size: 14px; font-weight: 600; line-height: 1.4; color: #e6edf3; margin-bottom: 5px; text-wrap: pretty;">{{ previewTitle }}</div>
+                    </sc-if>
+                    <div style="font-size: 13px; line-height: 1.6; color: #8b949e; text-wrap: pretty;">{{ previewText }}</div>
+                  </div>
+                </div>
+                <div style="padding: 12px; border-top: 1px solid #21262d; background: #0d1117;">
+                  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px;">
+                    <span style="font-size: 12px; color: #8b949e;">{{ afterLabel }}</span>
+                    <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; font-weight: 600; color: {{ afterColor }};">{{ afterScore }}</span>
+                  </div>
+                  <div style="height: 5px; border-radius: 3px; background: #21262d; overflow: hidden;">
+                    <div style="height: 100%; width: {{ afterPct }}%; background: {{ afterColor }};"></div>
+                  </div>
+                  <div style="margin-top: 7px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681;">{{ afterHint }}</div>
+                </div>
+              </div>
+
+              <sc-if value="{{ showWarning }}" hint-placeholder-val="{{ true }}">
+                <div style="border: 1px solid #f85149; border-radius: 6px; overflow: hidden;">
+                  <div style="padding: 7px 12px; background: rgba(248,81,73,0.12); border-bottom: 1px solid rgba(248,81,73,0.4); font-size: 12px; font-weight: 600; color: #ff8882;">Tu fuente baja la fiabilidad de la rama</div>
+                  <div style="padding: 12px; font-size: 12.5px; line-height: 1.6; color: #c9d1d9;">Peso {{ previewWeight }} frente al {{ branchScore }} de la rama.</div>
+                </div>
+              </sc-if>
+
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ profilePadStyle }}">
+            <div style="{{ profileHeadStyle }}">
+              <div style="width: 62px; height: 62px; border-radius: 50%; background: #161b22; border: 1px solid #30363d; color: #e6edf3; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 600;">MA</div>
+              <div>
+                <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 3px;">m.arregui</h1>
+                <p style="margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: #8b949e;">218 intervenciones · 41 hilos</p>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 26px;">
+              <div style="border: 1px solid #30363d; border-radius: 6px; padding: 14px; background: #161b22;">
+                <div style="font-size: 12px; color: #8b949e; margin-bottom: 7px;">Fiabilidad media</div>
+                <div style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 27px; font-weight: 600; color: #3fb950; line-height: 1;">0.78</div>
+              </div>
+              <div style="border: 1px solid #30363d; border-radius: 6px; padding: 14px; background: #161b22;">
+                <div style="font-size: 12px; color: #8b949e; margin-bottom: 7px;">Ramas que sostiene</div>
+                <div style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 27px; font-weight: 600; color: #d29922; line-height: 1;">36</div>
+              </div>
+              <div style="border: 1px solid #30363d; border-radius: 6px; padding: 14px; background: #161b22;">
+                <div style="font-size: 12px; color: #8b949e; margin-bottom: 7px;">Fuentes primarias</div>
+                <div style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 27px; font-weight: 600; color: #e6edf3; line-height: 1;">61%</div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border: 1px solid #30363d; border-left: 3px solid #a371f7; border-radius: 6px; padding: 14px; background: #161b22; margin-bottom: 26px;">
+              <div style="min-width: 0;">
+                <div style="font-size: 12px; color: #8b949e; margin-bottom: 7px;">Reputación de cuenta</div>
+                <div style="display: flex; align-items: baseline; gap: 5px;">
+                  <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 27px; font-weight: 600; color: #a371f7; line-height: 1;">82</span>
+                  <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: #6e7681;">/100</span>
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 180px;">
+                <div style="height: 7px; border-radius: 4px; background: #21262d; overflow: hidden;">
+                  <div style="height: 100%; width: 82%; background: #a371f7;"></div>
+                </div>
+                <div style="margin-top: 7px; font-size: 11.5px; color: #6e7681;">Mide el comportamiento de la cuenta, no la calidad de sus fuentes.</div>
+              </div>
+            </div>
+
+            <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden; margin-bottom: 26px;">
+              <div style="display: flex; align-items: baseline; gap: 8px; padding: 8px 12px; background: #161b22; border-bottom: 1px solid #30363d;">
+                <span style="font-size: 12px; font-weight: 600;">Mis apelaciones</span>
+              </div>
+              <sc-for list="{{ appeals }}" as="a" hint-placeholder-count="3">
+                <div style="display: flex; align-items: flex-start; gap: 12px; padding: 11px 12px; border-bottom: 1px solid #21262d;">
+                  <div style="min-width: 0; flex: 1;">
+                    <div style="font-size: 13px; color: #c9d1d9; line-height: 1.45; margin-bottom: 4px; text-wrap: pretty;">{{ a.title }}</div>
+                    <div style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681;">{{ a.when }} · {{ a.reason }}</div>
+                  </div>
+                  <span style="{{ a.badgeStyle }}">{{ a.statusLabel }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border: 1px solid #30363d; border-radius: 6px; overflow: hidden;">
+              <div style="padding: 8px 12px; background: #161b22; border-bottom: 1px solid #30363d; font-size: 12px; font-weight: 600;">Reparto de fuentes citadas</div>
+              <div style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+                <sc-for list="{{ mixBars }}" as="m" hint-placeholder-count="6">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="width: 104px; flex-shrink: 0; font-size: 13px; color: #c9d1d9;">{{ m.label }}</span>
+                    <div style="flex: 1; height: 7px; border-radius: 4px; background: #21262d; overflow: hidden;">
+                      <div style="height: 100%; width: {{ m.pct }}%; background: {{ m.color }};"></div>
+                    </div>
+                    <span style="width: 38px; text-align: right; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: #8b949e;">{{ m.pct }}%</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+      </main>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ appealOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 55; overflow-y: auto; background: #0d1117;">
+      <div style="max-width: 620px; margin: 0 auto; padding: 32px 16px 56px;">
+        <button onClick="{{ appealCancel }}" style="background: none; border: none; color: #8b949e; font-family: inherit; font-size: 12px; cursor: pointer; padding: 0; margin-bottom: 12px;" style-hover="color: #4493f8;">← Volver al hilo</button>
+        <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 18px;">Apelar la ocultación</h1>
+
+        <div style="border: 1px solid #5c2b28; border-radius: 6px; overflow: hidden; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 9px; flex-wrap: wrap; padding: 8px 12px; background: #1a1011; border-bottom: 1px solid #5c2b28;">
+            <span style="font-size: 12.5px; font-weight: 600; color: #e6edf3;">{{ appealAuthor }}</span>
+            <span style="font-size: 12px; color: #a4756f;">{{ appealTime }}</span>
+            <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #a4756f; margin-left: auto;">{{ appealReports }} · {{ appealReason }}</span>
+          </div>
+          <div style="padding: 12px; font-size: 13.5px; line-height: 1.65; color: #c9d1d9; text-wrap: pretty;">{{ appealExcerpt }}</div>
+        </div>
+
+        <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Motivo de la apelación</label>
+        <textarea value="{{ appealText }}" onChange="{{ onAppealText }}" placeholder="Por qué la fuente es válida o el reporte es incorrecto" style="width: 100%; min-height: 150px; resize: vertical; display: block; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; color: #c9d1d9; font-size: 14.5px; line-height: 1.65; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);"></textarea>
+
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 18px;">
+          <button onClick="{{ appealSend }}" style="{{ appealSendStyle }}">Enviar apelación</button>
+          <button onClick="{{ appealCancel }}" style="background: #21262d; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 8px 14px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="background: #30363d;">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ reportOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(1,4,9,0.72);">
+      <div style="width: 100%; max-width: 384px; max-height: 88vh; overflow-y: auto; background: #161b22; border: 1px solid #30363d; border-radius: 6px; box-shadow: 0 16px 48px rgba(1,4,9,0.8);">
+        <div style="display: flex; align-items: baseline; gap: 8px; padding: 10px 14px; background: #0d1117; border-bottom: 1px solid #30363d;">
+          <span style="font-size: 13px; font-weight: 600; color: #e6edf3;">Reportar intervención</span>
+          <span style="font-size: 12px; color: #6e7681; margin-left: auto;">{{ reportTarget }}</span>
+        </div>
+        <div style="padding: 14px; display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 9px;">Motivo</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <sc-for list="{{ reportReasons }}" as="r" hint-placeholder-count="5">
+                <button onClick="{{ r.click }}" style="{{ r.style }}">{{ r.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <label style="display: flex; align-items: baseline; gap: 7px; font-size: 12px; font-weight: 600; margin-bottom: 9px;">
+              <span>Comentario</span>
+              <span style="font-size: 11.5px; font-weight: 400; color: #6e7681;">opcional</span>
+            </label>
+            <textarea value="{{ reportNote }}" onChange="{{ onReportNote }}" placeholder="Qué falla exactamente" style="width: 100%; min-height: 76px; resize: vertical; display: block; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 9px 11px; color: #c9d1d9; font-size: 13.5px; line-height: 1.6; outline: none;" style-focus="border-color: #4493f8; box-shadow: 0 0 0 3px rgba(68,147,248,0.25);"></textarea>
+          </div>
+          <div style="display: flex; align-items: center; gap: 9px; padding-top: 2px;">
+            <button onClick="{{ reportSend }}" style="{{ reportSendStyle }}">Enviar reporte</button>
+            <button onClick="{{ reportCancel }}" style="background: #21262d; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 7px 14px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="background: #30363d;">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ tip }}" hint-placeholder-val="{{ false }}">
+    <div style="{{ tipStyle }}">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 11px; border-bottom: 1px solid #21262d;">
+        <span style="font-size: 12.5px; font-weight: 600; color: #e6edf3;">{{ tipAuthor }}</span>
+        <span style="{{ tipBadgeStyle }}">{{ tipScore }}</span>
+      </div>
+      <div style="display: flex; border-bottom: 1px solid #21262d;">
+        <div style="flex: 1; padding: 8px 11px; border-right: 1px solid #21262d;">
+          <div style="font-size: 11px; color: #6e7681; margin-bottom: 3px;">esta respuesta</div>
+          <div style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 600; color: {{ tipOwnColor }};">{{ tipWeight }}</div>
+        </div>
+        <div style="flex: 1; padding: 8px 11px;">
+          <div style="font-size: 11px; color: #6e7681; margin-bottom: 3px;">su rama</div>
+          <div style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 600; color: {{ tipBranchColor }};">{{ tipBranch }}</div>
+        </div>
+      </div>
+      <sc-if value="{{ tipIsFork }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; gap: 7px; padding: 8px 11px; border-bottom: 1px solid #21262d; background: #12171f;">
+          <span style="font-size: 12px; color: #8b949e;">↳</span>
+          <span style="font-size: 12px; font-weight: 600; color: #e6edf3; text-wrap: pretty;">Bifurcación: {{ tipForkTitle }}</span>
+        </div>
+      </sc-if>
+      <div style="padding: 10px 11px; font-size: 13px; line-height: 1.6; color: #c9d1d9; text-wrap: pretty;">{{ tipExcerpt }}</div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 9px 11px; border-top: 1px solid #21262d; background: #0d1117;">
+        <span style="{{ tipChipStyle }}">{{ tipSource }} {{ tipWeight }}</span>
+        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #6e7681;">{{ tipCount }} en rama · nivel {{ tipLevel }}</span>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;sunburstLevels&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:2,&quot;max&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Sunburst&quot;,&quot;label&quot;:&quot;Anillos visibles&quot;},&quot;showTrendArrows&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Árbol&quot;,&quot;label&quot;:&quot;Indicadores de tendencia&quot;},&quot;minWeightWarn&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.1,&quot;min&quot;:0,&quot;max&quot;:0.5,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Formulario&quot;,&quot;label&quot;:&quot;Umbral de aviso de fiabilidad&quot;}}">
+const SOURCES = [
+  { id: 'paper', label: 'Paper científico', w: 0.95 },
+  { id: 'inst', label: 'Institución oficial', w: 0.88 },
+  { id: 'libro', label: 'Libro', w: 0.8 },
+  { id: 'medio', label: 'Medio', w: 0.6 },
+  { id: 'blog', label: 'Blog', w: 0.45 },
+  { id: 'yt', label: 'YouTube', w: 0.35 },
+  { id: 'otro', label: 'Otro', w: 0.3 },
+  { id: 'social', label: 'Red social', w: 0.25 },
+  { id: 'ig', label: 'Instagram', w: 0.2 }
+];
+const SRC = {};
+SOURCES.forEach(s => { SRC[s.id] = s; });
+
+const HOME = [
+  { id: 1, topic: 'Energía', author: 'l.vidal', title: '¿Puede la nuclear cubrir la base de un sistema 100% renovable en 2040?', replies: 214, depth: 4, last: 'hace 12 min', score: 0.81, mix: '64% primarias', trend: 'up' },
+  { id: 2, topic: 'Salud pública', author: 'r.otero', title: 'Sobre la evidencia real detrás de los suplementos de vitamina D en adultos sanos', replies: 137, depth: 3, last: 'hace 40 min', score: 0.72, mix: '58% primarias', trend: 'flat' },
+  { id: 3, topic: 'IA y regulación', author: 'nadia.k', title: 'El AI Act europeo y los modelos de propósito general: ¿qué obliga exactamente?', replies: 96, depth: 3, last: 'hace 2 h', score: 0.55, mix: '31% primarias', trend: 'down' },
+  { id: 4, topic: 'Vivienda', author: 'j.bermejo', title: 'Control de alquileres: qué muestran los datos de Barcelona y Berlín cinco años después', replies: 308, depth: 5, last: 'hace 3 h', score: 0.47, mix: '24% primarias', trend: 'down' },
+  { id: 5, topic: 'Clima', author: 'c.reyes', title: 'Captura directa de aire: coste por tonelada y por qué las cifras no cuadran', replies: 64, depth: 2, last: 'hace 5 h', score: 0.9, mix: '81% primarias', trend: 'up' },
+  { id: 6, topic: 'Economía', author: 'p.salas', title: 'Renta básica universal: qué se puede y qué no se puede concluir de los pilotos', replies: 172, depth: 4, last: 'ayer', score: 0.29, mix: '9% primarias', trend: 'down' }
+];
+
+const TREE = {
+  id: 'r', author: 'l.vidal', src: 'paper', time: 'hace 6 días',
+  url: 'nature.com/articles/s41560-023-01220-z',
+  text: 'La cuestión no es si la nuclear es limpia, sino si su curva de coste y sus plazos de construcción encajan con un sistema dominado por eólica y solar en 2040. El escenario de referencia del informe de Nature Energy sitúa el LCOE de nueva construcción por encima de cualquier renovable, pero también advierte de que el coste de almacenamiento estacional está sin resolver.',
+  kids: [
+    { id: 'a', author: 'm.arregui', src: 'inst', time: 'hace 5 días', url: 'iea.org/reports/nuclear-power-2024',
+      text: 'La AIE estima que prolongar la vida de los reactores existentes es la fuente de bajas emisiones más barata disponible hoy, por debajo incluso de la solar en varios mercados. El debate sobre nueva construcción y el de extensión de vida son problemas distintos y se están mezclando.',
+      kids: [
+        { id: 'a1', author: 'd.puig', src: 'paper', time: 'hace 5 días', url: 'doi.org/10.1016/j.enpol.2023.10',
+          text: 'Añado el dato de disponibilidad: la flota europea operó al 71% de factor de capacidad en 2022, muy por debajo de su media histórica, por paradas no programadas y por restricciones de refrigeración durante la ola de calor.',
+          kids: [
+            { id: 'a1a', author: 'k.lorenz', src: 'inst', time: 'hace 4 días', url: 'ec.europa.eu/energy/statistics',
+              text: 'Eurostat da la serie completa. 2022 es un año atípico dominado por la corrosión bajo tensión detectada en la flota francesa, no una tendencia estructural.', kids: [] },
+            { id: 'a1b', author: 'v.serra', src: 'medio', time: 'hace 4 días', url: 'lemonde.fr/economie/article/2023',
+              text: 'La cobertura de prensa del momento apuntaba a que la recuperación llevaría dos años. En 2024 el factor de capacidad volvió al 76%.', kids: [] }
+          ] },
+        { id: 'a2', author: 'h.nieto', src: 'libro', time: 'hace 4 días', url: 'Sustainable Energy Without the Hot Air, MacKay',
+          fork: true, forkTitle: 'Uso de suelo y densidad energética',
+          forkWhy: 'La rama venía hablando de disponibilidad de la flota; esto abre el eje territorial, que no se había tratado.',
+          text: 'El cálculo de MacKay sigue siendo el marco más limpio para razonar sobre densidad energética por unidad de territorio, y ahí la nuclear no tiene competencia.',
+          kids: [
+            { id: 'a2a', author: 'e.font', src: 'blog', time: 'hace 3 días', url: 'energyinsights.substack.com/p/land-use',
+              text: 'La densidad por territorio importa mucho menos de lo que sugiere ese marco cuando la solar va en tejados y cubiertas agrícolas ya ocupadas.', kids: [] }
+          ] }
+      ] },
+    { id: 'b', author: 'nadia.k', src: 'medio', time: 'hace 5 días', url: 'ft.com/content/nuclear-costs-2024',
+      fork: true, forkTitle: 'Coste real y desviaciones de presupuesto',
+      forkWhy: 'El hilo discute viabilidad técnica en 2040; aquí se separa el problema del historial de sobrecostes, que sigue su propia lógica.',
+      text: 'El sobrecoste de Hinkley Point C ya supera las tres veces el presupuesto inicial. Cualquier proyección de coste para nueva nuclear en Europa que ignore el historial de desviaciones es un ejercicio teórico.',
+      kids: [
+        { id: 'b1', author: 'g.aramburu', src: 'social', time: 'hace 4 días', url: 'x.com/energyposting/status/17',
+          text: 'Eso es cherry picking, los proyectos coreanos y chinos se entregan en plazo y a un tercio del coste.',
+          kids: [
+            { id: 'b1a', author: 'nadia.k', src: 'paper', time: 'hace 4 días', url: 'doi.org/10.1088/2516-1083/acb2f9',
+              text: 'Los costes coreanos son reales pero no transferibles: dependen de una cadena de suministro con producción continua y de un único diseño repetido catorce veces. Europa no tiene ninguna de las dos cosas.', kids: [] },
+            { id: 'b1b', author: 'anon_2291', src: 'ig', time: 'hace 3 días', url: 'instagram.com/p/C4kx9', hidden: true, reports: 14, reason: 'Fuente falsa',
+              text: 'Vi un reel que explicaba que el coste real lo infla la regulación, no la ingeniería.', kids: [] }
+          ] },
+        { id: 'b2', author: 't.moya', src: 'yt', time: 'hace 3 días', url: 'youtube.com/watch?v=hinkley-doc',
+          text: 'El documental sobre la construcción muestra bien el problema de la curva de aprendizaje perdida entre generaciones de ingenieros.', kids: [] }
+      ] },
+    { id: 'c', author: 'c.reyes', src: 'paper', time: 'hace 4 días', url: 'doi.org/10.1038/s41467-024-45',
+      fork: true, forkTitle: 'Alternativa: sobredimensionar renovables',
+      forkWhy: 'Se deriva de la pregunta original pero cambia el enfoque: en vez de evaluar la nuclear, evalúa si el hueco que justificaría construirla existe.',
+      text: 'Hay una tercera vía poco discutida: sobredimensionar renovables y aceptar vertidos altos sale más barato que el almacenamiento estacional en casi todos los escenarios modelados. Eso reduce, aunque no elimina, el hueco que justificaría nueva nuclear.',
+      kids: [
+        { id: 'c1', author: 'm.arregui', src: 'inst', time: 'hace 3 días', url: 'irena.org/publications/2024/flexibility',
+          text: 'IRENA llega a una conclusión parecida, con la salvedad de que asume interconexión transfronteriza que hoy no existe en el sur de Europa.', kids: [] },
+        { id: 'c2', author: 'j.bermejo', src: 'blog', time: 'hace 2 días', url: 'gridlab.blog/curtailment-math',
+          text: 'Buen resumen del cálculo de vertidos, aunque el autor reconoce que usa precios de 2021.', kids: [] },
+        { id: 'c3', author: 'm.arregui', src: 'blog', time: 'hace 1 día', url: 'notasenergia.blog/vertidos-2024', hidden: true, reports: 6, reason: 'Fuente falsa',
+          text: 'Recojo el hilo anterior con cifras propias: en el escenario de vertidos del 18% el coste de sistema cae por debajo del umbral que haría competitiva la nueva nuclear, incluso asumiendo precios de capital de 2024.', kids: [] }
+      ] },
+    { id: 'd', author: 'anon_1180', src: 'otro', time: 'hace 2 días', url: 'foro-energia.net/thread/8812', hidden: true, reports: 9, reason: 'Fuente falsa',
+      text: 'En un foro sectorial se comentaba que los SMR resolverán esto antes de 2035.',
+      kids: [
+        { id: 'd1', author: 'd.puig', src: 'inst', time: 'hace 1 día', url: 'nrc.gov/reactors/new-reactors/smr',
+          text: 'La NRC solo ha certificado un diseño de SMR y el proyecto de referencia se canceló en 2023 por coste. Las fechas de 2035 no tienen soporte regulatorio.', kids: [] }
+      ] }
+  ]
+};
+
+function hex(c) { return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]; }
+function mix(a, b, t) {
+  const A = hex(a), B = hex(b);
+  return 'rgb(' + Math.round(A[0] + (B[0] - A[0]) * t) + ',' + Math.round(A[1] + (B[1] - A[1]) * t) + ',' + Math.round(A[2] + (B[2] - A[2]) * t) + ')';
+}
+function colorFor(s) {
+  const v = Math.max(0, Math.min(1, s));
+  return v < 0.5 ? mix('#f85149', '#d29922', v / 0.5) : mix('#d29922', '#3fb950', (v - 0.5) / 0.5);
+}
+function fmt(n) { return n.toFixed(2); }
+
+const MONO = 'ui-monospace,SFMono-Regular,Menlo,monospace';
+const badge = (s, size) => 'display:inline-flex;align-items:center;justify-content:center;font-family:' + MONO + ';font-weight:600;border-radius:4px;background:' + colorFor(s) + ';color:#0d1117;padding:' + (size === 'lg' ? '7px 10px;font-size:17px' : '2px 6px;font-size:11.5px') + ';';
+const chip = (w) => 'display:inline-flex;align-items:center;gap:6px;padding:1px 7px;border-radius:999px;font-size:11.5px;font-weight:500;border:1px solid ' + colorFor(w) + ';color:' + colorFor(w) + ';background:transparent;white-space:nowrap;font-family:' + MONO + ';';
+
+function decorate(node, depth, parent) {
+  node.depth = depth;
+  node.parent = parent;
+  node.w = SRC[node.src].w;
+  node.kids.forEach(k => decorate(k, depth + 1, node));
+  const all = [];
+  (function walk(n) { all.push(n); n.kids.forEach(walk); })(node);
+  node.count = all.length - 1;
+  node.agg = all.reduce((s, n) => s + n.w, 0) / all.length;
+  const recent = node.kids.slice(-2);
+  if (!recent.length) node.trend = 'flat';
+  else {
+    const r = recent.reduce((s, n) => s + n.agg, 0) / recent.length;
+    node.trend = r > node.agg + 0.04 ? 'up' : (r < node.agg - 0.04 ? 'down' : 'flat');
+  }
+  return node;
+}
+decorate(TREE, 0, null);
+
+const INDEX = {};
+(function walk(n) { INDEX[n.id] = n; n.kids.forEach(walk); })(TREE);
+
+const ME = 'm.arregui';
+const TREND = { up: { icon: '▲', color: '#3fb950', text: 'mejorando' }, down: { icon: '▼', color: '#f85149', text: 'empeorando' }, flat: { icon: '▪', color: '#8b949e', text: 'estable' } };
+
+class Component extends DCLogic {
+  state = {
+    screen: 'auth', authMode: 'login', view: 'sunburst',
+    current: 'a1', hover: null, tipX: 0, tipY: 0,
+    draft: '', src: null, url: '', homeSort: 'Actividad',
+    composeMode: 'thread', threadTitle: '', topic: null,
+    composeKind: 'direct', forkTitle: '', forkWhy: '', directOnly: false,
+    panX: 0, panY: 0, zoom: 1, dragging: false,
+    reportFor: null, reportReason: null, reportNote: '', reported: {}, revealed: {},
+    vw: typeof window !== 'undefined' ? window.innerWidth : 1280,
+    appealFor: null, appealText: '', appeals: [
+      { id: 'ap2', title: 'Los costes coreanos no son transferibles a Europa', when: '12 sept', reason: 'Turno inválido', status: 'accepted' },
+      { id: 'ap3', title: 'Sobre el factor de capacidad de la flota francesa', when: '3 sept', reason: 'Spam', status: 'rejected' }
+    ],
+    collapsed: Object.keys(INDEX).reduce((a, k) => { if (INDEX[k].fork || INDEX[k].hidden) a[k] = true; return a; }, {})
+  };
+
+  arc(r0, r1, a0, a1) {
+    const p = (r, a) => [(r * Math.sin(a)).toFixed(2), (-r * Math.cos(a)).toFixed(2)];
+    const large = (a1 - a0) > Math.PI ? 1 : 0;
+    return 'M' + p(r1, a0) + 'A' + r1 + ' ' + r1 + ' 0 ' + large + ' 1 ' + p(r1, a1) + 'L' + p(r0, a1) + 'A' + r0 + ' ' + r0 + ' 0 ' + large + ' 0 ' + p(r0, a0) + 'Z';
+  }
+
+  segments() {
+    const levels = this.props.sunburstLevels ?? 3;
+    const rings = [[62, 116], [122, 168], [174, 214]].slice(0, levels);
+    const out = [];
+    const self = this;
+    const place = (node, a0, a1, lvl) => {
+      if (lvl >= rings.length) return;
+      const total = node.kids.reduce((s, k) => s + k.count + 1, 0) || 1;
+      let a = a0;
+      node.kids.forEach(k => {
+        const span = (a1 - a0) * ((k.count + 1) / total);
+        const r = rings[lvl];
+        out.push({
+          d: self.arc(r[0], r[1], a, a + span),
+          fork: !!k.fork,
+          fill: colorFor(k.agg),
+          op: self.state.hover && self.state.hover !== k.id ? 0.5 : 1,
+          enter: (e) => self.setState({ hover: k.id, tipX: Math.max(8, Math.min(e.clientX + 16, window.innerWidth - 300)), tipY: Math.max(8, Math.min(e.clientY + 14, window.innerHeight - 210)) }),
+          click: () => self.setState({ current: k.id, view: 'tree', hover: null })
+        });
+        place(k, a, a + span, lvl + 1);
+        a += span;
+      });
+    };
+    place(TREE, 0, Math.PI * 2, 0);
+    return { segs: out, rings: rings.map(r => ({ r: r[1] + 4 })) };
+  }
+
+  componentDidMount() {
+    this._onResize = () => { this.setState({ vw: window.innerWidth }); if (this.state.view === 'tree') this.fit(); };
+    window.addEventListener('resize', this._onResize);
+    this.vp = React.createRef ? this.vp : null;
+    this._ro = new ResizeObserver(() => { if (this.state.view === 'tree' && !this._fitted) this.fit(); });
+    if (this.vpEl) this._ro.observe(this.vpEl);
+    this.fit();
+  }
+
+  componentWillUnmount() { if (this._ro) this._ro.disconnect(); window.removeEventListener('resize', this._onResize); }
+
+  componentDidUpdate(prevProps, prevState) {
+    const enteredTree = this.state.view === 'tree' && (prevState.view !== 'tree' || prevState.screen !== this.state.screen);
+    if (enteredTree) this.fit();
+    if (this.vpEl && this._ro && !this._observed) { this._ro.observe(this.vpEl); this._observed = true; }
+  }
+
+  setVp = (el) => {
+    if (!el || el === this.vpEl) return;
+    this.vpEl = el;
+    this._observed = false;
+    if (this.state.view === 'tree') requestAnimationFrame(() => this.fit());
+  };
+
+  fit() {
+    const el = this.vpEl;
+    if (!el) return;
+    const vpW = el.clientWidth, vpH = el.clientHeight;
+    if (!vpW || !vpH) return;
+    const lay = this.layout();
+    const zoom = Math.max(0.4, Math.min(1, (vpW - 24) / lay.w, (vpH - 24) / lay.h));
+    this.setState({
+      zoom: Math.round(zoom * 100) / 100,
+      panX: (vpW - lay.w * zoom) / 2,
+      panY: Math.min(16, (vpH - lay.h * zoom) / 2)
+    });
+  }
+
+  zoomAt(next) {
+    const el = this.vpEl;
+    const z1 = Math.max(0.4, Math.min(1.8, Math.round(next * 100) / 100));
+    const z0 = this.state.zoom;
+    if (!el || z1 === z0) { this.setState({ zoom: z1 }); return; }
+    const cx = el.clientWidth / 2, cy = el.clientHeight / 2;
+    this.setState({
+      zoom: z1,
+      panX: cx - (cx - this.state.panX) * z1 / z0,
+      panY: cy - (cy - this.state.panY) * z1 / z0
+    });
+  }
+
+  layout() {
+    const sm = this.state.vw < 720;
+    const NW = sm ? 138 : 176, NH = sm ? 92 : 104, HGAP = sm ? 14 : 22, VGAP = sm ? 52 : 74, PAD = sm ? 20 : 40;
+    const nodes = [], edges = [];
+    const collapsed = this.state.collapsed;
+    const self = this;
+    let cursor = PAD;
+    const place = (n, depth) => {
+      const kidsHidden = !!collapsed[n.id] || (self.state.directOnly && n.kids.some(k => k.fork) && false);
+      const kids = kidsHidden ? [] : n.kids.filter(k => !(self.state.directOnly && k.fork));
+      let x;
+      if (!kids.length) { x = cursor; cursor += NW + HGAP; }
+      else {
+        const placed = kids.map(k => place(k, depth + 1));
+        x = (placed[0].x + placed[placed.length - 1].x) / 2;
+      }
+      const y = PAD + depth * (NH + VGAP);
+      const rec = { node: n, x: x, y: y, w: NW, h: NH, kidsHidden: kidsHidden && n.kids.length > 0 };
+      nodes.push(rec);
+      kids.forEach(k => {
+        const kr = nodes.find(r => r.node.id === k.id);
+        const midY = y + NH + VGAP / 2;
+        edges.push({
+          d: 'M' + (x + NW / 2) + ',' + (y + NH) + ' V' + midY + ' H' + (kr.x + NW / 2) + ' V' + kr.y,
+          stroke: k.fork ? '#8b949e' : '#30363d',
+          width: k.fork ? 1.4 : 1.6,
+          dash: k.fork ? '5 4' : '0'
+        });
+      });
+      return rec;
+    };
+    place(TREE, 0);
+    const maxX = nodes.reduce((m, r) => Math.max(m, r.x + NW), 0);
+    const maxY = nodes.reduce((m, r) => Math.max(m, r.y + NH), 0);
+    return { nodes: nodes, edges: edges, w: maxX + PAD, h: maxY + PAD + 26 };
+  }
+
+  pathTo(id) { const out = []; let n = INDEX[id]; while (n) { out.unshift(n); n = n.parent; } return out; }
+
+  flatten() {
+    const out = [];
+    const self = this;
+    const walk = (n) => {
+      if (self.state.directOnly && n.fork) return;
+      const veiled = !!n.hidden && !self.state.revealed[n.id];
+      const closed = veiled || !!self.state.collapsed[n.id];
+      out.push({ node: n, closed: closed && !veiled, open: !closed, veiled: veiled });
+      if (!closed) n.kids.forEach(walk);
+    };
+    walk(TREE);
+    return out;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const cur = INDEX[s.current] || TREE;
+    const sel = s.src ? SRC[s.src] : null;
+    const pv = sel ? sel.w : null;
+    const branch = cur.agg;
+    const newThread = s.composeMode === 'thread';
+    const after = newThread ? (pv === null ? 0 : pv) : (pv === null ? branch : (branch * (cur.count + 1) + pv) / (cur.count + 2));
+    const sb = this.segments();
+    const lay = this.layout();
+    const hv = s.hover ? INDEX[s.hover] : null;
+    const replies = Object.keys(INDEX).map(k => INDEX[k]).filter(n => n.id !== 'r');
+    const forkCount = replies.filter(n => n.fork).length;
+    const vw = s.vw, sm = vw < 720, md = vw < 1040;
+    const PAD = sm ? '16px' : '22px';
+    const oneCol = md;
+    const byUser = {};
+    replies.forEach(n => { (byUser[n.author] = byUser[n.author] || []).push(n); });
+    const users = Object.keys(byUser).map(name => {
+      const posts = byUser[name];
+      const counts = {};
+      posts.forEach(p => { counts[p.src] = (counts[p.src] || 0) + 1; });
+      const top = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || SRC[b].w - SRC[a].w)[0];
+      return { name: name, posts: posts, top: top, mean: posts.reduce((a, p) => a + p.w, 0) / posts.length };
+    }).sort((a, b) => b.mean - a.mean || b.posts.length - a.posts.length);
+    const warnAt = this.props.minWeightWarn ?? 0.1;
+    const arrows = this.props.showTrendArrows ?? true;
+
+    const authTab = (on) => 'padding:9px 12px;background:none;border:none;border-bottom:2px solid ' + (on ? '#f78166' : 'transparent') + ';cursor:pointer;font-size:13px;font-weight:600;color:' + (on ? '#e6edf3' : '#8b949e') + ';';
+    const navBtn = (on) => 'padding:5px 10px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:' + (on ? 600 : 400) + ';background:' + (on ? '#21262d' : 'transparent') + ';color:' + (on ? '#e6edf3' : '#8b949e') + ';';
+    const vtab = (on) => 'padding:9px 14px;border:none;background:transparent;cursor:pointer;font-size:13px;font-weight:' + (on ? 600 : 400) + ';color:' + (on ? '#e6edf3' : '#8b949e') + ';border-bottom:2px solid ' + (on ? '#f78166' : 'transparent') + ';';
+    const filt = (on) => 'padding:3px 9px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:' + (on ? 600 : 400) + ';border:1px solid ' + (on ? '#30363d' : 'transparent') + ';background:' + (on ? '#0d1117' : 'transparent') + ';color:' + (on ? '#e6edf3' : '#8b949e') + ';';
+    const trendS = (t, sz) => 'font-size:' + (sz || 10) + 'px;line-height:1;color:' + TREND[t].color + ';';
+
+    const threads = HOME.slice().sort((a, b) => s.homeSort === 'Fiabilidad' ? b.score - a.score : (s.homeSort === 'Más débiles' ? a.score - b.score : 0)).map((t, i) => ({
+      topic: t.topic, author: t.author, title: t.title, replies: t.replies, depth: t.depth, last: t.last,
+      color: colorFor(t.score), pct: Math.round(t.score * 100), scoreLabel: fmt(t.score), mix: t.mix,
+      badgeStyle: badge(t.score), trendIcon: arrows ? TREND[t.trend].icon : '', trendStyle: trendS(t.trend, 10),
+      cardStyle: 'display:flex;gap:' + (sm ? '11px' : '14px') + ';align-items:' + (sm ? 'flex-start' : 'center') + ';width:100%;padding:12px 14px;background:transparent;border:none;border-bottom:1px solid #21262d;cursor:pointer;text-align:left;color:inherit;font:inherit;',
+      click: () => this.setState({ screen: 'thread', view: 'sunburst', current: 'r', hover: null })
+    }));
+
+    const pathNodes = this.pathTo(s.current).map((n, i) => ({
+      score: fmt(n.agg), badgeStyle: badge(n.agg), author: n.author, excerpt: n.text.slice(0, 124) + '…',
+      source: SRC[n.src].label, weight: fmt(n.w), chipStyle: chip(n.w), count: n.count, indent: i * 8,
+      trend: arrows ? TREND[n.trend].icon : '', trendStyle: trendS(n.trend, 10),
+      trendText: TREND[n.trend].text,
+      trendTextStyle: 'font-size:11.5px;font-weight:500;color:' + TREND[n.trend].color + ';',
+      isFork: !!n.fork, forkTitle: n.forkTitle || '', forkWhy: n.forkWhy || '',
+      forkTagStyle: 'display:inline-flex;align-items:center;gap:5px;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600;border:1px dashed #6e7681;background:#12171f;color:#c9d1d9;',
+      rowStyle: 'border-bottom:1px solid #21262d;background:' + (n.id === s.current ? '#161b22' : 'transparent') + ';border-left:2px solid ' + (n.id === s.current ? '#f78166' : 'transparent') + ';',
+      click: () => this.setState({ current: n.id })
+    }));
+
+    const childNodes = cur.kids.map(n => ({
+      author: n.author, score: fmt(n.agg), badgeStyle: badge(n.agg), excerpt: n.text.slice(0, 96) + '…',
+      source: SRC[n.src].label, weight: fmt(n.w), chipStyle: chip(n.w), count: n.count,
+      trend: arrows ? TREND[n.trend].icon : '', trendStyle: trendS(n.trend, 10),
+      isFork: !!n.fork, forkTitle: n.forkTitle || '',
+      rowStyle: 'display:flex;gap:9px;align-items:flex-start;width:100%;padding:9px 12px;border:none;border-bottom:1px solid #21262d;border-left:2px solid ' + (n.fork ? '#6e7681' : 'transparent') + ';background:transparent;cursor:pointer;font:inherit;color:inherit;',
+      cardStyle: 'display:flex;flex-direction:column;gap:9px;padding:13px;background:' + (n.fork ? '#12171f' : '#161b22') + ';border:1px ' + (n.fork ? 'dashed #6e7681' : 'solid #30363d') + ';border-radius:6px;cursor:pointer;text-align:left;font:inherit;color:inherit;',
+      click: () => this.setState({ current: n.id })
+    }));
+
+    const flat = this.flatten().map(r => {
+      const n = r.node;
+      return {
+        indent: Math.min(n.depth, 5) * (sm ? 10 : 24), color: colorFor(n.agg), author: n.author, time: n.time,
+        isFork: !!n.fork, forkTitle: n.forkTitle || '', forkWhy: n.forkWhy || '',
+        forkHeadStyle: 'display:flex;flex-direction:column;gap:5px;padding:9px 12px;margin:10px 0 0;border:1px dashed #6e7681;border-radius:6px 6px 0 0;border-bottom:none;background:#12171f;',
+        bodyStyle: r.veiled
+          ? 'min-width:0;flex:1;padding:11px 12px 13px 12px;background:#1a1011;border:1px solid #5c2b28;border-left:none;border-radius:0 6px 6px 0;'
+          : (n.fork
+            ? 'min-width:0;flex:1;padding:11px 12px 13px 12px;background:#12171f;border:1px dashed #6e7681;border-left:none;border-radius:0 0 6px 0;'
+            : 'min-width:0;flex:1;padding:11px 0 13px 14px;border-bottom:1px solid #21262d;'),
+        veiled: r.veiled, notVeiled: !r.veiled,
+        lineColor: r.veiled ? '#5c2b28' : colorFor(n.agg),
+        hiddenNote: 'Oculto automáticamente por reportes — ' + n.author + ' puede apelar',
+        reportCount: n.reports ? n.reports + ' reportes · ' + n.reason.toLowerCase() : '',
+        reveal: () => { const rv = Object.assign({}, this.state.revealed); rv[n.id] = true; const c = Object.assign({}, this.state.collapsed); c[n.id] = false; this.setState({ revealed: rv, collapsed: c }); },
+        report: () => this.setState({ reportFor: n.id, reportReason: null, reportNote: '' }),
+        isMine: n.author === ME,
+        appeal: () => this.setState({ appealFor: n.id, appealText: '' }),
+        isReported: !!this.state.reported[n.id],
+        kindLabel: n.fork ? 'bifurcación' : 'respuesta directa',
+        collapsedNote: n.fork ? 'Abrir subtema · ' + n.count : n.count + ' ocultas',
+        source: SRC[n.src].label, weight: fmt(n.w), chipStyle: chip(n.w), text: n.text, url: n.url,
+        branch: fmt(n.agg), count: n.count, open: r.open, closed: r.closed,
+        collapseLabel: r.closed ? (n.fork ? 'Abrir el subtema' : 'Expandir rama') : (n.fork ? 'Cerrar el subtema' : (n.kids.length ? 'Colapsar rama' : '')),
+        toggleIcon: r.closed ? '+' : '−',
+        toggleStyle: 'width:17px;height:17px;border-radius:4px;border:1px solid ' + (n.fork ? '#6e7681' : '#30363d') + ';background:#161b22;color:#8b949e;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;',
+        toggle: () => { const c = Object.assign({}, this.state.collapsed); c[n.id] = !c[n.id]; this.setState({ collapsed: c }); },
+        reply: () => this.setState({ screen: 'compose', composeMode: 'reply', composeKind: 'direct', current: n.id, hover: null }),
+        forkFrom: () => this.setState({ screen: 'compose', composeMode: 'reply', composeKind: 'fork', current: n.id, hover: null })
+      };
+    });
+
+    const weakest = replies.slice().sort((a, b) => a.w - b.w).slice(0, 3).map(n => ({
+      score: fmt(n.w), badgeStyle: badge(n.w), label: n.author + ' · ' + SRC[n.src].label + ' · nivel ' + n.depth,
+      click: () => this.setState({ current: n.id, view: 'tree', hover: null })
+    }));
+
+    return {
+      sm: sm, notSm: !sm,
+      shellPad: PAD,
+      homePad: 'padding:' + (sm ? '18px 16px 56px' : '26px 22px 64px') + ';max-width:1012px;margin:0 auto;',
+      homeHeadStyle: 'display:flex;align-items:' + (sm ? 'flex-start' : 'center') + ';justify-content:space-between;gap:' + (sm ? '12px' : '20px') + ';margin-bottom:16px;flex-direction:' + (sm ? 'column' : 'row') + ';',
+      rowStyleBase: sm,
+      headerStyle: 'display:flex;align-items:center;gap:' + (sm ? '10px' : '16px') + ';min-height:54px;padding:' + (sm ? '8px 14px' : '0 22px') + ';background:#161b22;border-bottom:1px solid #30363d;position:sticky;top:0;z-index:20;flex-wrap:' + (sm ? 'wrap' : 'nowrap') + ';',
+      navWrapStyle: 'display:flex;gap:2px;' + (sm ? 'order:3;width:100%;overflow-x:auto;padding-bottom:2px;' : ''),
+      searchWrapStyle: sm ? 'display:none;' : 'flex:1;max-width:300px;margin-left:auto;',
+      threadHeadStyle: 'background:#161b22;border-bottom:1px solid #30363d;padding:' + (sm ? '14px 16px 0' : '18px 22px 0') + ';',
+      tabsRowStyle: 'display:flex;align-items:' + (sm ? 'stretch' : 'center') + ';gap:10px;margin-top:' + (sm ? '12px' : '16px') + ';flex-direction:' + (sm ? 'column' : 'row') + ';',
+      tabsScrollStyle: 'display:flex;gap:2px;' + (sm ? 'overflow-x:auto;' : ''),
+      directOnlyWrapStyle: 'display:flex;align-items:center;gap:9px;' + (sm ? 'padding-bottom:10px;' : 'margin-left:auto;padding-bottom:8px;'),
+      sunburstGridStyle: 'padding:' + (sm ? '16px 16px 56px' : '24px 22px 64px') + ';max-width:1012px;margin:0 auto;display:grid;grid-template-columns:' + (oneCol ? 'minmax(0,1fr)' : 'minmax(0,1fr) 272px') + ';gap:' + (sm ? '14px' : '20px') + ';align-items:start;',
+      treePadStyle: 'padding:' + (sm ? '12px 16px 20px' : '16px 22px 24px') + ';display:flex;flex-direction:column;gap:12px;',
+      treeGridStyle: 'display:grid;grid-template-columns:' + (oneCol ? 'minmax(0,1fr)' : 'minmax(0,1fr) 288px') + ';gap:' + (sm ? '12px' : '14px') + ';align-items:stretch;',
+      classicPadStyle: 'padding:' + (sm ? '16px 16px 56px' : '24px 22px 64px') + ';max-width:880px;margin:0 auto;',
+      composeGridStyle: 'padding:' + (sm ? '18px 16px 56px' : '26px 22px 64px') + ';max-width:1012px;margin:0 auto;display:grid;grid-template-columns:' + (oneCol ? 'minmax(0,1fr)' : 'minmax(0,1fr) 290px') + ';gap:' + (sm ? '16px' : '20px') + ';align-items:start;',
+      composeSideStyle: 'display:flex;flex-direction:column;gap:14px;' + (oneCol ? '' : 'position:sticky;top:74px;'),
+      kindRowStyle: 'display:flex;gap:8px;flex-direction:' + (sm ? 'column' : 'row') + ';',
+      profilePadStyle: 'padding:' + (sm ? '18px 16px 56px' : '26px 22px 64px') + ';max-width:880px;margin:0 auto;',
+      profileHeadStyle: 'display:flex;align-items:center;gap:' + (sm ? '12px' : '16px') + ';margin-bottom:' + (sm ? '18px' : '24px') + ';',
+      isAuth: s.screen === 'auth', isApp: s.screen !== 'auth',
+      isHome: s.screen === 'home', isThread: s.screen === 'thread',
+      isCompose: s.screen === 'compose', isProfile: s.screen === 'profile',
+      isSunburst: s.view === 'sunburst', isTree: s.view === 'tree', isClassic: s.view === 'classic',
+
+      isRegister: s.authMode === 'register',
+      authCta: s.authMode === 'login' ? 'Entrar' : 'Crear cuenta',
+      tabLoginStyle: authTab(s.authMode === 'login'), tabRegStyle: authTab(s.authMode === 'register'),
+      setLogin: () => this.setState({ authMode: 'login' }), setRegister: () => this.setState({ authMode: 'register' }),
+      enter: () => this.setState({ screen: 'home' }),
+
+      nav: [
+        { label: 'Hilos', k: 'home' }, { label: 'Hilo abierto', k: 'thread' },
+        { label: 'Nuevo hilo', k: 'compose' }, { label: 'Perfil', k: 'profile' }
+      ].map(n => ({
+        label: n.label,
+        style: navBtn(n.k === 'compose'
+          ? (s.screen === 'compose' && newThread)
+          : (n.k === 'thread'
+            ? (s.screen === 'thread' || (s.screen === 'compose' && !newThread))
+            : s.screen === n.k)),
+        click: () => this.setState(n.k === 'compose' ? { screen: 'compose', composeMode: 'thread', hover: null } : { screen: n.k, hover: null })
+      })),
+      goHome: () => this.setState({ screen: 'home', hover: null }),
+      goCompose: () => this.setState({ screen: 'compose', composeMode: 'thread', hover: null }),
+      goReply: () => this.setState({ screen: 'compose', composeMode: 'reply', hover: null }),
+      goProfile: () => this.setState({ screen: 'profile', hover: null }),
+      back: () => this.setState({ screen: s.composeMode === 'thread' ? 'home' : 'thread', hover: null }),
+      isReply: !newThread, isNewThread: newThread,
+      backLabel: newThread ? '← Hilos activos' : '← Volver al hilo',
+      composeTitle: newThread ? 'Abrir un hilo nuevo' : (s.composeKind === 'fork' ? 'Bifurcar un nuevo subtema' : 'Responder en la rama'),
+      bodyLabel: newThread ? 'Planteamiento del hilo' : (s.composeKind === 'fork' ? 'Planteamiento del subtema' : 'Tu argumento'),
+      bodyPlaceholder: newThread
+        ? 'Qué se discute y qué afirma tu fuente de partida.'
+        : (s.composeKind === 'fork' ? 'El nuevo enfoque y qué aporta tu fuente.' : 'Tu posición y qué afirma tu fuente.'),
+      threadTitle: s.threadTitle,
+      onTitle: (e) => this.setState({ threadTitle: e.target.value }),
+      isForkReply: !newThread && s.composeKind === 'fork',
+      kindOptions: [
+        { k: 'direct', label: 'Respuesta directa' },
+        { k: 'fork', label: 'Bifurcar: nuevo subtema' }
+      ].map(o => ({
+        label: o.label,
+        style: 'display:flex;flex-direction:column;gap:3px;align-items:flex-start;flex:1;padding:10px 12px;border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;background:' + (s.composeKind === o.k ? '#0d1117' : '#161b22') + ';border:1px ' + (o.k === 'fork' ? 'dashed' : 'solid') + ' ' + (s.composeKind === o.k ? (o.k === 'fork' ? '#8b949e' : '#4493f8') : '#30363d') + ';',
+        labelStyle: 'font-size:13px;font-weight:600;color:' + (s.composeKind === o.k ? '#e6edf3' : '#8b949e') + ';',
+        click: () => this.setState({ composeKind: o.k })
+      })),
+      forkTitleVal: s.forkTitle, forkWhyVal: s.forkWhy,
+      onForkTitle: (e) => this.setState({ forkTitle: e.target.value }),
+      onForkWhy: (e) => this.setState({ forkWhy: e.target.value }),
+      forkPreviewTitle: s.forkTitle ? s.forkTitle : 'Título del nuevo subtema',
+      forkPreviewWhy: s.forkWhy ? s.forkWhy : 'Motivo de conexión',
+      topicChips: ['Energía', 'Salud pública', 'IA y regulación', 'Vivienda', 'Clima', 'Economía'].map(t => ({
+        label: t,
+        style: 'padding:4px 10px;border-radius:999px;cursor:pointer;font-size:12.5px;font-family:inherit;background:' + (s.topic === t ? '#0d1117' : '#161b22') + ';border:1px solid ' + (s.topic === t ? '#8b949e' : '#30363d') + ';color:' + (s.topic === t ? '#e6edf3' : '#8b949e') + ';',
+        click: () => this.setState({ topic: t })
+      })),
+      previewTitle: s.threadTitle ? s.threadTitle : 'Título del hilo',
+      afterLabel: newThread ? 'Fiabilidad inicial' : 'Rama tras publicar',
+      afterHint: newThread ? '' : fmt(branch) + ' → ' + fmt(after),
+
+      threadCount: HOME.length,
+      homeFilters: ['Actividad', 'Fiabilidad', 'Más débiles'].map(f => ({
+        label: f, style: filt(s.homeSort === f), click: () => this.setState({ homeSort: f })
+      })),
+      threads,
+
+      rootTitle: HOME[0].title, rootAuthor: TREE.author, totalPosts: TREE.count + 1,
+      rootScoreLabel: fmt(TREE.agg), rootColor: colorFor(TREE.agg), rootBadgeStyle: badge(TREE.agg, 'lg'),
+
+      viewTabs: [{ label: 'Sunburst', k: 'sunburst' }, { label: 'Árbol / camino', k: 'tree' }, { label: 'Vista clásica', k: 'classic' }].map(v => ({
+        label: v.label, style: vtab(s.view === v.k), click: () => this.setState({ view: v.k, hover: null })
+      })),
+
+      segs: sb.segs, forkSegs: sb.segs.filter(x => x.fork), rings: sb.rings, weakest,
+      rootMetricLabel: fmt(TREE.agg),
+      userCount: users.length + (users.length === 1 ? ' usuario' : ' usuarios'),
+      users: users.map(u => ({
+        name: u.name, mean: fmt(u.mean), color: colorFor(u.mean), badgeStyle: badge(u.mean),
+        pct: Math.round(u.mean * 100),
+        n: u.posts.length + (u.posts.length === 1 ? ' intervención' : ' intervenciones'),
+        top: SRC[u.top].label.toLowerCase(),
+        rowStyle: 'display:flex;gap:10px;align-items:center;width:100%;padding:9px 12px;background:' + (s.hover && INDEX[s.hover] && INDEX[s.hover].author === u.name ? '#161b22' : 'transparent') + ';border:none;border-bottom:1px solid #21262d;cursor:pointer;font:inherit;color:inherit;',
+        click: () => this.setState({ current: u.posts[0].id, view: 'tree', hover: null })
+      })),
+      rootEnter: (e) => this.setState({ hover: 'r', tipX: Math.max(8, Math.min(e.clientX + 16, window.innerWidth - 300)), tipY: Math.max(8, Math.min(e.clientY + 14, window.innerHeight - 210)) }),
+      rootClick: () => this.setState({ current: 'r', view: 'classic', hover: null }),
+      clearHover: () => this.setState({ hover: null }),
+      tip: !!hv,
+      tipStyle: sm
+        ? 'position:fixed;left:12px;right:12px;bottom:12px;background:#161b22;border:1px solid #30363d;border-radius:6px;box-shadow:0 8px 24px rgba(1,4,9,0.8);pointer-events:none;z-index:40;overflow:hidden;'
+        : 'position:fixed;left:' + s.tipX + 'px;top:' + s.tipY + 'px;width:282px;background:#161b22;border:1px solid #30363d;border-radius:6px;box-shadow:0 8px 24px rgba(1,4,9,0.8);pointer-events:none;z-index:40;overflow:hidden;',
+      tipAuthor: hv ? hv.author : '', tipScore: hv ? fmt(hv.agg) : '',
+      tipBadgeStyle: hv ? badge(hv.agg) : '',
+      tipOwnColor: hv ? colorFor(hv.w) : '#8b949e',
+      tipBranch: hv ? fmt(hv.agg) : '', tipBranchColor: hv ? colorFor(hv.agg) : '#8b949e',
+      tipExcerpt: hv ? hv.text.slice(0, 150) + '…' : '', tipSource: hv ? SRC[hv.src].label : '',
+      tipWeight: hv ? fmt(hv.w) : '', tipChipStyle: hv ? chip(hv.w) : '', tipCount: hv ? hv.count : 0, tipLevel: hv ? hv.depth : 0,
+      tipIsFork: !!(hv && hv.fork), tipForkTitle: hv && hv.fork ? hv.forkTitle : '',
+
+      crumbs: this.pathTo(s.current).map((n, i, arr) => ({
+        label: n.fork ? n.forkTitle : (i === 0 ? 'Afirmación original' : n.author),
+        style: n.fork
+          ? 'display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;border:1px dashed #6e7681;background:#12171f;font-size:12px;font-weight:600;color:#e6edf3;cursor:pointer;font-family:inherit;'
+          : 'display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;border:1px solid ' + (n.id === s.current ? '#30363d' : 'transparent') + ';background:' + (n.id === s.current ? '#0d1117' : 'transparent') + ';font-size:12px;font-weight:' + (n.id === s.current ? 600 : 400) + ';color:' + (n.id === s.current ? '#e6edf3' : '#8b949e') + ';cursor:pointer;font-family:inherit;',
+        prefix: n.fork ? '↳' : '',
+        sep: i < arr.length - 1,
+        click: () => this.setState({ current: n.id })
+      })),
+      directOnly: s.directOnly,
+      directOnlyStyle: 'display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:' + (s.directOnly ? 600 : 400) + ';border:1px solid ' + (s.directOnly ? '#8b949e' : '#30363d') + ';background:' + (s.directOnly ? '#0d1117' : '#161b22') + ';color:' + (s.directOnly ? '#e6edf3' : '#8b949e') + ';',
+      directOnlyDot: 'width:7px;height:7px;border-radius:2px;background:' + (s.directOnly ? '#3fb950' : '#30363d') + ';',
+      toggleDirectOnly: () => this.setState({ directOnly: !s.directOnly }),
+      treeNodes: lay.nodes.map(r => {
+        const n = r.node;
+        const on = n.id === s.current;
+        return {
+          isFork: !!n.fork, forkTitle: n.forkTitle || '', hasKids: n.kids.length > 0,
+          score: fmt(n.agg), badgeStyle: badge(n.agg), author: n.author,
+          trend: arrows ? TREND[n.trend].icon : '', trendStyle: trendS(n.trend, 10) + 'margin-left:auto;',
+          excerpt: n.text.slice(0, sm ? 52 : 78) + '…', source: SRC[n.src].label, weight: fmt(n.w), chipStyle: chip(n.w),
+          wrapStyle: 'position:absolute;left:' + r.x + 'px;top:' + r.y + 'px;width:' + r.w + 'px;',
+          cardStyle: 'display:flex;flex-direction:column;width:100%;height:' + r.h + 'px;padding:0;overflow:hidden;background:' + (n.hidden ? '#1a1011' : (n.fork ? '#12171f' : '#161b22')) + ';border:1px ' + (n.fork ? 'dashed' : 'solid') + ' ' + (on ? '#e6edf3' : (n.hidden ? '#5c2b28' : (n.fork ? '#6e7681' : '#30363d'))) + ';border-radius:6px;cursor:pointer;font:inherit;color:inherit;box-shadow:' + (on ? '0 0 0 3px rgba(230,237,243,0.12)' : 'none') + ';',
+          topStyle: 'display:block;height:3px;width:100%;background:' + colorFor(n.agg) + ';',
+          toggleLabel: r.kidsHidden ? '+ ' + n.count : '−',
+          toggleStyle: 'position:absolute;left:50%;transform:translateX(-50%);top:' + (r.h + 3) + 'px;min-width:24px;height:19px;padding:0 6px;border-radius:999px;border:1px solid ' + (n.fork ? '#6e7681' : '#30363d') + ';background:#0d1117;color:#8b949e;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1;cursor:pointer;',
+          click: () => this.setState({ current: n.id }),
+          toggle: (e) => { e.stopPropagation(); const c = Object.assign({}, this.state.collapsed); c[n.id] = !c[n.id]; this.setState({ collapsed: c }); }
+        };
+      }),
+      edges: lay.edges, canvasW: lay.w, canvasH: lay.h,
+      canvasStyle: 'position:relative;flex:1;min-height:' + (sm ? '320px' : '440px') + ';height:' + (sm ? '64vh' : '56vh') + ';touch-action:none;overflow:hidden;cursor:' + (s.dragging ? 'grabbing' : 'grab') + ';',
+      stageStyle: 'position:absolute;left:0;top:0;width:' + lay.w + 'px;height:' + lay.h + 'px;transform:translate(' + s.panX + 'px,' + s.panY + 'px) scale(' + s.zoom + ');transform-origin:0 0;',
+      gridX: Math.round(s.panX % 22), gridY: Math.round(s.panY % 22),
+      zoomLabel: Math.round(s.zoom * 100) + '%',
+      zoomBtnStyle: 'width:22px;height:22px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:13px;line-height:1;cursor:pointer;padding:0;',
+      fitBtnStyle: 'padding:3px 9px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;',
+      vpRef: this.setVp,
+      zoomIn: () => this.zoomAt(s.zoom + 0.15),
+      zoomOut: () => this.zoomAt(s.zoom - 0.15),
+      resetView: () => this.fit(),
+      panStart: (e) => { this.drag = { x: e.clientX, y: e.clientY, px: s.panX, py: s.panY }; this.setState({ dragging: true }); },
+      panMove: (e) => { if (!this.drag) return; this.setState({ panX: this.drag.px + (e.clientX - this.drag.x), panY: this.drag.py + (e.clientY - this.drag.y) }); },
+      panEnd: () => { this.drag = null; if (s.dragging) this.setState({ dragging: false }); },
+      onWheel: (e) => { e.preventDefault(); this.zoomAt(s.zoom - Math.sign(e.deltaY) * 0.08); },
+
+      selIsFork: !!cur.fork, selForkTitle: cur.forkTitle || '', selForkWhy: cur.forkWhy || '',
+      selScore: fmt(cur.agg), selBadgeStyle: badge(cur.agg), selAuthor: cur.author,
+      selTrend: arrows ? TREND[cur.trend].icon : '', selTrendText: TREND[cur.trend].text,
+      selTrendTextStyle: 'font-size:11.5px;font-weight:600;color:' + TREND[cur.trend].color + ';',
+      selText: cur.text, selSource: SRC[cur.src].label, selWeight: fmt(cur.w), selChipStyle: chip(cur.w),
+      selCount: cur.count, selDepth: cur.depth,
+      selHidden: !!cur.hidden, selHiddenNote: 'Oculto automáticamente por reportes — ' + cur.author + ' puede apelar',
+      selReported: !!s.reported[cur.id],
+      selReport: () => this.setState({ reportFor: cur.id, reportReason: null, reportNote: '' }),
+      appealOpen: !!s.appealFor,
+      appealAuthor: s.appealFor && INDEX[s.appealFor] ? INDEX[s.appealFor].author : '',
+      appealTime: s.appealFor && INDEX[s.appealFor] ? INDEX[s.appealFor].time : '',
+      appealExcerpt: s.appealFor && INDEX[s.appealFor] ? INDEX[s.appealFor].text.slice(0, 190) + '…' : '',
+      appealReason: s.appealFor && INDEX[s.appealFor] ? INDEX[s.appealFor].reason : '',
+      appealReports: s.appealFor && INDEX[s.appealFor] ? INDEX[s.appealFor].reports + ' reportes' : '',
+      appealText: s.appealText,
+      onAppealText: (e) => this.setState({ appealText: e.target.value }),
+      appealCancel: () => this.setState({ appealFor: null, appealText: '' }),
+      appealSendStyle: 'border-radius:6px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:600;cursor:' + (s.appealText ? 'pointer' : 'not-allowed') + ';background:' + (s.appealText ? '#238636' : '#21262d') + ';color:' + (s.appealText ? '#ffffff' : '#6e7681') + ';border:1px solid ' + (s.appealText ? 'rgba(240,246,252,0.1)' : '#30363d') + ';',
+      appealSend: () => {
+        if (!s.appealText) return;
+        const n = INDEX[s.appealFor];
+        const list = [{ id: 'ap' + Date.now(), title: n.text.slice(0, 58) + '…', when: 'hoy', reason: n.reason, status: 'pending' }].concat(s.appeals);
+        this.setState({ appeals: list, appealFor: null, appealText: '', screen: 'profile' });
+      },
+      appeals: s.appeals.map(a => {
+        const st = { pending: { label: 'Pendiente', bg: '#21262d', bd: '#30363d', fg: '#c9d1d9' },
+          accepted: { label: 'Aceptada', bg: '#0f2a1b', bd: '#1f5c3a', fg: '#7ee2a8' },
+          rejected: { label: 'Rechazada', bg: '#24120f', bd: '#5c2b28', fg: '#ffb4ad' } }[a.status];
+        return {
+          title: a.title, when: a.when, reason: a.reason, statusLabel: st.label,
+          badgeStyle: 'display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-family:' + MONO + ';font-size:11px;font-weight:600;background:' + st.bg + ';border:1px solid ' + st.bd + ';color:' + st.fg + ';white-space:nowrap;'
+        };
+      }),
+      hasAppeals: s.appeals.length > 0,
+      reportOpen: !!s.reportFor,
+      reportTarget: s.reportFor && INDEX[s.reportFor] ? INDEX[s.reportFor].author : '',
+      reportReasons: ['Fuente falsa', 'Spam', 'Insulto', 'Turno inválido', 'Otro'].map(rn => ({
+        label: rn,
+        style: 'padding:5px 11px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:' + (s.reportReason === rn ? 600 : 400) + ';background:' + (s.reportReason === rn ? '#24120f' : '#161b22') + ';border:1px solid ' + (s.reportReason === rn ? '#f85149' : '#30363d') + ';color:' + (s.reportReason === rn ? '#ffb4ad' : '#8b949e') + ';',
+        click: () => this.setState({ reportReason: rn })
+      })),
+      reportNote: s.reportNote,
+      onReportNote: (e) => this.setState({ reportNote: e.target.value }),
+      reportCancel: () => this.setState({ reportFor: null, reportReason: null, reportNote: '' }),
+      reportSendStyle: 'border-radius:6px;padding:7px 15px;font-family:inherit;font-size:13px;font-weight:600;cursor:' + (s.reportReason ? 'pointer' : 'not-allowed') + ';background:' + (s.reportReason ? '#b62324' : '#21262d') + ';color:' + (s.reportReason ? '#ffffff' : '#6e7681') + ';border:1px solid ' + (s.reportReason ? 'rgba(240,246,252,0.1)' : '#30363d') + ';',
+      reportSend: () => {
+        if (!s.reportReason) return;
+        const rp = Object.assign({}, s.reported); rp[s.reportFor] = true;
+        this.setState({ reported: rp, reportFor: null, reportReason: null, reportNote: '' });
+      },
+      selReply: () => this.setState({ screen: 'compose', composeMode: 'reply', composeKind: 'direct', hover: null }),
+      selFork: () => this.setState({ screen: 'compose', composeMode: 'reply', composeKind: 'fork', hover: null }),
+
+      pathNodes, childNodes, childCount: cur.kids.length + (cur.kids.length === 1 ? ' rama' : ' ramas'), flat,
+
+      replyToAuthor: cur.author, branchScore: fmt(branch), branchColor: colorFor(branch),
+      draft: s.draft, charCount: s.draft.length, url: s.url,
+      onText: (e) => this.setState({ draft: e.target.value }),
+      onUrl: (e) => this.setState({ url: e.target.value }),
+      sourceChips: SOURCES.map(o => ({
+        label: o.label, w: o.w.toFixed(2), color: colorFor(o.w),
+        style: 'display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;background:' + (s.src === o.id ? '#0d1117' : '#161b22') + ';border:1px solid ' + (s.src === o.id ? colorFor(o.w) : '#30363d') + ';color:#e6edf3;',
+        click: () => this.setState({ src: o.id })
+      })),
+      previewColor: pv === null ? '#30363d' : colorFor(pv),
+      previewSource: sel ? sel.label : 'sin fuente',
+      previewWeight: pv === null ? '—' : fmt(pv),
+      previewChipStyle: pv === null ? 'padding:1px 7px;border-radius:999px;font-size:11.5px;border:1px solid #30363d;color:#8b949e;font-family:' + MONO + ';' : chip(pv),
+      previewText: s.draft ? s.draft.slice(0, 180) : 'Tu texto',
+      afterScore: fmt(after), afterColor: colorFor(after), afterPct: Math.round(after * 100),
+      showWarning: !newThread && pv !== null && pv < branch - warnAt,
+      publishLabel: (function () {
+        const okBody = !!s.draft && !!sel;
+        if (newThread) { if (!s.threadTitle) return 'Falta el título'; return okBody ? 'Abrir el hilo' : 'Falta fuente'; }
+        if (s.composeKind === 'fork' && (!s.forkTitle || !s.forkWhy)) return 'Faltan datos del subtema';
+        return okBody ? (s.composeKind === 'fork' ? 'Publicar bifurcación' : 'Publicar respuesta') : 'Falta fuente';
+      })(),
+      publishStyle: (function () {
+        const ok = !!sel && !!s.draft && (!newThread || !!s.threadTitle) && (newThread || s.composeKind !== 'fork' || (!!s.forkTitle && !!s.forkWhy));
+        return 'border-radius:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:' + (ok ? 'pointer' : 'not-allowed') + ';background:' + (ok ? '#238636' : '#21262d') + ';color:' + (ok ? '#ffffff' : '#6e7681') + ';border:1px solid ' + (ok ? 'rgba(240,246,252,0.1)' : '#30363d') + ';';
+      })(),
+      publish: () => {
+        const ok = !!sel && !!s.draft && (!newThread || !!s.threadTitle) && (newThread || s.composeKind !== 'fork' || (!!s.forkTitle && !!s.forkWhy));
+        if (!ok) return;
+        this.setState({ screen: 'thread', view: newThread ? 'sunburst' : 'classic', draft: '', src: null, url: '', threadTitle: '', topic: null, composeKind: 'direct', forkTitle: '', forkWhy: '' });
+      },
+
+      mixBars: [
+        { label: 'Paper', pct: 38, w: 0.95 }, { label: 'Institución', pct: 23, w: 0.88 },
+        { label: 'Libro', pct: 9, w: 0.8 }, { label: 'Medio', pct: 17, w: 0.6 },
+        { label: 'Blog', pct: 8, w: 0.45 }, { label: 'Red social', pct: 5, w: 0.25 }
+      ].map(m => ({ label: m.label, pct: m.pct, color: colorFor(m.w) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

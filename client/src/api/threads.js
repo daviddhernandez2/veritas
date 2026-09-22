@@ -18,3 +18,9 @@ export async function getThreadClassicRequest(threadId) {
   const data = await apiFetch(`/threads/${threadId}/classic`);
   return data.posts;
 }
+
+// Vista árbol/camino: mismos posts que la clásica (con autor resuelto)
+// más el camino de ancestros hasta postId, calculado en el servidor.
+export async function getThreadPathRequest(threadId, postId) {
+  return apiFetch(`/threads/${threadId}/path/${postId}`);
+}

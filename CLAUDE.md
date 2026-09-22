@@ -11,6 +11,8 @@ Regla de naming
 
 Nunca usar nombres de marcas de terceros (Reddit, etc.) en código, rutas, nombres de componentes o archivos — solo como comparación verbal en comentarios o conversación está bien, nunca como identificador.
 
+Referencia visual del diseño completo en `/design-reference/`
+
 Decisiones de arquitectura cerradas (no reabrir sin que se pida explícitamente)
 Posts en una sola colección self-referencing (parentId, threadRootId, depth)
 reliabilityAgg CACHEADO en cada post, recalculado en cascada ascendente al insertar/eliminar posts — nunca calculado al vuelo en lectura

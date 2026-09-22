@@ -78,3 +78,40 @@ export async function getThreadTree(req, res) {
 
   res.json({ posts });
 }
+
+// Igual que getThreadTree, pero además resuelve el nombre de autor de
+// cada post (la vista árbol/camino lo necesita para las tarjetas y las
+// migas de pan) y el camino de ancestros hasta :postId, calculado aquí
+// en memoria a partir de los posts ya cargados — así el cliente no
+// repite esta consulta por cada click de nodo, solo la pide una vez al
+// entrar en la pestaña.
+export async function getThreadPath(req, res) {
+  const { id, postId } = req.params;
+
+  const root = await Post.findById(id);
+  if (!root || root.parentId !== null) {
+    throw new AppError("Hilo no encontrado", 404);
+  }
+
+  const posts = await Post.find({ threadRootId: id, status: "visible" })
+    .sort({ depth: 1, createdAt: 1 })
+    .select(
+      "authorId parentId depth title content postType forkLabel forkRationale sourceType sourceWeight reliabilityAgg childCount createdAt",
+    )
+    .populate("authorId", "username");
+
+  const byId = new Map(posts.map((p) => [String(p._id), p]));
+  const target = byId.get(postId);
+  if (!target) {
+    throw new AppError("El post solicitado no existe en este hilo", 404);
+  }
+
+  const path = [];
+  let current = target;
+  while (current) {
+    path.unshift(current._id);
+    current = current.parentId ? byId.get(String(current.parentId)) : null;
+  }
+
+  res.json({ posts, path });
+}
