@@ -18,14 +18,14 @@ Posts en una sola colección self-referencing (parentId, threadRootId, depth)
 reliabilityAgg CACHEADO en cada post, recalculado en cascada ascendente al insertar/eliminar posts — nunca calculado al vuelo en lectura
 Fórmula: reliabilityAgg = α × sourceWeight_propio + (1-α) × promedio(reliabilityAgg hijos directos), α = 0.6
 sourceWeight es un snapshot al publicar — cambiar los pesos admin no afecta retroactivamente a posts ya publicados
-Tres vistas (Sunburst, árbol/camino, clásica) se alimentan de la MISMA estructura de datos (GET /api/threads/:id/classic para el árbol aplanado), solo cambia la proyección/query
+Tres vistas (Sunburst, árbol/camino, clásica) se alimentan de la misma proyección de datos del hilo. Sunburst y clásica usan GET /api/threads/:id/classic (árbol aplanado). Árbol/camino usa GET /api/threads/:id/path/:postId — mismos campos que /classic más el autor poblado y el camino de ancestros hasta :postId resuelto en servidor; se pide una sola vez al entrar en la vista, no en cada click de nodo
 postType (reply | fork) es PURAMENTE DESCRIPTIVO — no hay sistema de turnos ni bloqueo de ningún tipo. Cualquier usuario puede responder directamente a cualquier post en cualquier momento. Un fork exige forkLabel + forkRationale obligatorios y se distingue solo visualmente (cabecera propia en las vistas)
 NO existe turnState, awaitingReplyFrom ni expiresAt en el modelo — se implementaron y se retiraron deliberadamente, no los reintroduzcas
 Moderación MVP: solo reportes + reputación automática (sin moderador humano todavía) — pendiente de implementar
 La capa de verificación por IA está APARCADA deliberadamente
 Estado actual (ver también README.md del repo)
 
-Completado: Fase 0 (setup), Fase 1 (auth JWT), Fase 2 (hilos/posts + vista clásica), Fase 3 (motor de fiabilidad + badges reales), Fase 4 (reply/fork descriptivo, sin bloqueo). Pendiente: Fase 5 (Sunburst D3), Fase 6 (vista árbol/camino), Fase 7 (moderación: reportes + reputación automática), Fase 8 (documentación interna solo-admin en /admin/docs), Fase 9 (hardening y despliegue).
+Completado: Fase 0 (setup), Fase 1 (auth JWT), Fase 2 (hilos/posts + vista clásica), Fase 3 (motor de fiabilidad + badges reales), Fase 4 (reply/fork descriptivo, sin bloqueo), Fase 5 (Sunburst D3), Fase 6 (vista árbol/camino). Pendiente: Fase 7 (moderación: reportes + reputación automática), Fase 8 (documentación interna solo-admin en /admin/docs), Fase 9 (hardening y despliegue).
 
 Cómo ayudar en este proyecto
 Respuestas técnicas directas, en español, sin rodeos

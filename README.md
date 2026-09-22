@@ -18,10 +18,13 @@ Completado:
 - **Fase 4** — reply/fork descriptivo (sin bloqueo ni turnos).
 - **Fase 5** — vista Sunburst (D3) sobre la misma estructura de datos que la
   vista clásica.
+- **Fase 6** — vista árbol/camino: layout de árbol con pan/zoom, migas de
+  pan y paneles de nodo/ramas hijas (diseño portado desde
+  `design-reference/`), sobre el endpoint nuevo `GET /api/threads/:id/path/:postId`.
 
-Pendiente: Fase 6 (vista árbol/camino), Fase 7 (moderación: reportes +
-reputación automática), Fase 8 (documentación interna solo-admin en
-`/admin/docs`), Fase 9 (hardening y despliegue).
+Pendiente: Fase 7 (moderación: reportes + reputación automática), Fase 8
+(documentación interna solo-admin en `/admin/docs`), Fase 9 (hardening y
+despliegue).
 
 ## Cómo arrancar en local
 
@@ -53,8 +56,10 @@ existentes (o el mensaje de "todavía no hay hilos" si la base está vacía).
 - `POST /api/auth/register`, `POST /api/auth/login`
 - `GET /api/threads`, `POST /api/threads`
 - `GET /api/threads/:id/classic` — árbol completo de un hilo, aplanado.
-  Alimenta las tres vistas (Sunburst, árbol/camino, clásica); solo cambia la
-  proyección, nunca el fetch.
+  Alimenta Sunburst y la vista clásica.
+- `GET /api/threads/:id/path/:postId` — mismos posts que `/classic` más el
+  autor poblado y el camino de ancestros hasta `:postId`. Alimenta la vista
+  árbol/camino; se pide una sola vez al entrar en la pestaña.
 - `POST /api/posts/:parentId/reply` — responder o bifurcar (`postType`)
 - `GET /api/source-weights` — pesos de fiabilidad por tipo de fuente
 
@@ -74,7 +79,7 @@ veritas/
     src/
       api/           # cliente HTTP hacia el backend
       pages/         # Home, Login, Register, NewThread, Thread
-      components/    # PostNode, Sunburst, ReliabilityBadge, ReplyForm...
+      components/    # PostNode, Sunburst, TreeView, ReliabilityBadge, ReplyForm...
       context/        # AuthContext
       utils/         # reliabilityColor (escala compartida rojo/ámbar/verde)
 ```
@@ -82,4 +87,4 @@ veritas/
 ## Roadmap
 
 Ver el documento de proyecto para el roadmap completo por fases (0 a 9).
-Estamos en: **Fase 5 — Sunburst (D3)**.
+Estamos en: **Fase 7 — Moderación (reportes + reputación automática)**.
