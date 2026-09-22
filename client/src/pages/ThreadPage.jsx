@@ -97,8 +97,12 @@ export default function ThreadPage() {
     cursor: 'pointer'
   });
 
+  // Ancho fijo del contenedor (el de la vista más grande, árbol/Sunburst)
+  // para que no salte de tamaño al cambiar de pestaña — la vista
+  // clásica limita su propio contenido a una anchura de lectura cómoda
+  // por dentro, sin afectar al contenedor exterior.
   return (
-    <div style={{ maxWidth: view === 'tree' || view === 'sunburst' ? 1100 : 720, margin: '40px auto', padding: `0 ${spacing.lg}px` }}>
+    <div style={{ maxWidth: 1100, margin: '40px auto', padding: `0 ${spacing.lg}px` }}>
       <Link to="/" style={{ color: colors.text.muted, fontSize: typography.size.sm }}>← Volver a hilos</Link>
 
       <div style={{ display: 'flex', gap: 2, margin: `${spacing.lg}px 0`, borderBottom: `1px solid ${colors.border.default}` }}>
@@ -114,14 +118,16 @@ export default function ThreadPage() {
       </div>
 
       {view === 'classic' && (
-        <PostNode
-          post={root}
-          childrenByParent={childrenByParent}
-          sourceWeights={sourceWeights}
-          onReply={handleReply}
-          onReport={handleReport}
-          onAppeal={handleAppeal}
-        />
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <PostNode
+            post={root}
+            childrenByParent={childrenByParent}
+            sourceWeights={sourceWeights}
+            onReply={handleReply}
+            onReport={handleReport}
+            onAppeal={handleAppeal}
+          />
+        </div>
       )}
       {view === 'sunburst' && <Sunburst posts={posts} />}
       {view === 'tree' &&

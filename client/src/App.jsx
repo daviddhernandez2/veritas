@@ -33,17 +33,21 @@ export default function App() {
           <Route
             path="/"
             element={
-              <AppLayout>
-                <HomePage />
-              </AppLayout>
+              <ProtectedRoute>
+                <AppLayout>
+                  <HomePage />
+                </AppLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/threads/:id"
             element={
-              <AppLayout>
-                <ThreadPage />
-              </AppLayout>
+              <ProtectedRoute>
+                <AppLayout>
+                  <ThreadPage />
+                </AppLayout>
+              </ProtectedRoute>
             }
           />
           <Route
