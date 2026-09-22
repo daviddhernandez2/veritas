@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import LoadingScreen from '../components/LoadingScreen.jsx';
 import { colors, radii, spacing, typography, primaryButtonStyle, inputStyle, logoGradient } from '../styles/tokens.js';
 
 export default function RegisterPage() {
@@ -21,10 +22,13 @@ export default function RegisterPage() {
       navigate('/');
     } catch (err) {
       setError(err.message);
-    } finally {
       setSubmitting(false);
     }
   }
+
+  // Igual que en LoginPage: el primer registro tras inactividad es lo
+  // más probable que pille el backend dormido (plan gratuito de Render).
+  if (submitting) return <LoadingScreen message="Creando tu cuenta…" />;
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: `${spacing.xxl}px ${spacing.lg}px` }}>

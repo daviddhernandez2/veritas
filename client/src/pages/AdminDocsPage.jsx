@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAdminDocsRequest } from '../api/docs.js';
+import LoadingScreen from '../components/LoadingScreen.jsx';
 import { colors, radii, spacing, typography } from '../styles/tokens.js';
 
 export default function AdminDocsPage() {
@@ -14,7 +15,7 @@ export default function AdminDocsPage() {
   }, []);
 
   if (error) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.reliability.low }}>{error}</p>;
-  if (!sections) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.text.muted }}>Cargando documentación...</p>;
+  if (!sections) return <LoadingScreen message="Cargando documentación…" fullScreen={false} />;
 
   return (
     <div style={{ maxWidth: 1000, margin: '40px auto', padding: `0 ${spacing.lg}px`, display: 'grid', gridTemplateColumns: '220px minmax(0,1fr)', gap: 32, alignItems: 'start' }}>

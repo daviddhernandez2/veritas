@@ -27,6 +27,19 @@ body {
   box-sizing: border-box;
 }
 
+/* Usada por LoadingScreen.jsx — una animación de keyframes no se puede
+   expresar con style={{}} inline en React, así que vive aquí, el único
+   sitio del proyecto con CSS de verdad. */
+@keyframes veritas-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.veritas-spin {
+  animation: veritas-spin 1.1s linear infinite;
+}
+
 @layer base {
   /* Veritas no tiene toggle claro/oscuro — es oscuro siempre. En vez de
      dejar los valores oklch claros que genera el preset por defecto de

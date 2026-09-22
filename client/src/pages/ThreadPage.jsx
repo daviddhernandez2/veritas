@@ -6,6 +6,7 @@ import { listSourceWeightsRequest } from '../api/sourceWeights.js';
 import PostNode from '../components/PostNode.jsx';
 import Sunburst from '../components/Sunburst.jsx';
 import TreeView from '../components/TreeView.jsx';
+import LoadingScreen from '../components/LoadingScreen.jsx';
 import { colors, spacing, typography } from '../styles/tokens.js';
 
 export default function ThreadPage() {
@@ -70,7 +71,7 @@ export default function ThreadPage() {
     setTreeData(null);
   }
 
-  if (loading) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.text.muted }}>Cargando hilo...</p>;
+  if (loading) return <LoadingScreen message="Cargando hilo…" fullScreen={false} />;
   if (error) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.reliability.low }}>{error}</p>;
 
   const root = posts.find((p) => p.parentId === null);
@@ -132,7 +133,7 @@ export default function ThreadPage() {
       {view === 'sunburst' && <Sunburst posts={posts} />}
       {view === 'tree' &&
         (treeLoading || !treeData ? (
-          <p style={{ opacity: 0.7, color: colors.text.muted }}>Cargando árbol...</p>
+          <LoadingScreen message="Cargando árbol…" fullScreen={false} />
         ) : (
           <TreeView
             posts={treeData.posts}

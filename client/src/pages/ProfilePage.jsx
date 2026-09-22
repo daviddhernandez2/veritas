@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getProfileRequest } from '../api/profile.js';
 import Avatar from '../components/Avatar.jsx';
+import LoadingScreen from '../components/LoadingScreen.jsx';
 import { colors, radii, spacing, typography, reliabilityGradient } from '../styles/tokens.js';
 
 export default function ProfilePage() {
@@ -14,7 +15,7 @@ export default function ProfilePage() {
   }, []);
 
   if (error) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.reliability.low }}>{error}</p>;
-  if (!data) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.text.muted }}>Cargando perfil...</p>;
+  if (!data) return <LoadingScreen message="Cargando perfil…" fullScreen={false} />;
 
   const { user, stats, appeals } = data;
   const reputationColor = reliabilityGradient(user.reputation / 100);

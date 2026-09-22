@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import LoadingScreen from './LoadingScreen.jsx';
 
 // Envuelve páginas que exigen sesión (ej. crear hilo, responder).
 // Redirige a /login si no hay usuario — importante: esto protege el
@@ -11,7 +12,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 export default function ProtectedRoute({ children, role }) {
   const { user, loading } = useAuth();
 
-  if (loading) return <p>Cargando...</p>;
+  if (loading) return <LoadingScreen message="Comprobando tu sesión…" />;
   if (!user) return <Navigate to="/login" replace />;
   if (role && user.role !== role) return <Navigate to="/" replace />;
 

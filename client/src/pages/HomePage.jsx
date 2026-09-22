@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { listThreadsRequest } from '../api/threads.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import ReliabilityBadge from '../components/ReliabilityBadge.jsx';
+import LoadingScreen from '../components/LoadingScreen.jsx';
 import { colors, spacing, typography, primaryButtonStyle } from '../styles/tokens.js';
 
 export default function HomePage() {
@@ -28,8 +29,8 @@ export default function HomePage() {
         </Link>
       )}
 
-      {loading && <p style={{ color: colors.text.muted }}>Cargando hilos...</p>}
       {error && <p style={{ color: colors.reliability.low }}>{error}</p>}
+      {loading && <LoadingScreen message="Cargando hilos…" fullScreen={false} />}
 
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {threads.map((thread) => (
