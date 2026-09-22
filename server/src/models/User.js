@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
     // Se recalcula desde el servidor, nunca se edita a mano.
     reputation: {
       type: Number,
-      default: 50,
+      default: 100,
       min: 0,
       max: 100
     },
