@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { colors, spacing, typography, primaryButtonStyle, ghostButtonStyle, inputStyle } from '../styles/tokens.js';
 
 // Componente controlado: no sabe nada de la API, solo recoge los datos
 // y llama a onSubmit. Ahora incluye el selector reply/fork — cuando es
@@ -42,8 +43,8 @@ export default function ReplyForm({ sourceWeights, onSubmit, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-      <select value={postType} onChange={(e) => setPostType(e.target.value)}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm, marginTop: spacing.sm }}>
+      <select value={postType} onChange={(e) => setPostType(e.target.value)} style={inputStyle}>
         <option value="reply">Respuesta directa</option>
         <option value="fork">↳ Bifurcar: nuevo subtema</option>
       </select>
@@ -55,6 +56,7 @@ export default function ReplyForm({ sourceWeights, onSubmit, onCancel }) {
             value={forkLabel}
             onChange={(e) => setForkLabel(e.target.value)}
             required
+            style={inputStyle}
           />
           <textarea
             placeholder="¿Por qué se conecta con el post anterior?"
@@ -62,12 +64,13 @@ export default function ReplyForm({ sourceWeights, onSubmit, onCancel }) {
             onChange={(e) => setForkRationale(e.target.value)}
             rows={2}
             required
+            style={inputStyle}
           />
         </>
       )}
 
-      <textarea placeholder="Tu respuesta" value={content} onChange={(e) => setContent(e.target.value)} rows={3} required />
-      <select value={sourceType} onChange={(e) => setSourceType(e.target.value)} required>
+      <textarea placeholder="Tu respuesta" value={content} onChange={(e) => setContent(e.target.value)} rows={3} required style={inputStyle} />
+      <select value={sourceType} onChange={(e) => setSourceType(e.target.value)} required style={inputStyle}>
         <option value="" disabled>Tipo de fuente</option>
         {sourceWeights.map((sw) => (
           <option key={sw.sourceType} value={sw.sourceType}>
@@ -75,11 +78,15 @@ export default function ReplyForm({ sourceWeights, onSubmit, onCancel }) {
           </option>
         ))}
       </select>
-      <input placeholder="URL de la fuente (opcional)" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} />
-      {error && <p style={{ color: '#f85149' }}>{error}</p>}
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button type="submit" disabled={submitting}>{submitting ? 'Enviando...' : isFork ? 'Bifurcar' : 'Responder'}</button>
-        <button type="button" onClick={onCancel}>Cancelar</button>
+      <input placeholder="URL de la fuente (opcional)" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} style={inputStyle} />
+      {error && <p style={{ color: colors.reliability.low, fontSize: typography.size.sm, margin: 0 }}>{error}</p>}
+      <div style={{ display: 'flex', gap: spacing.sm }}>
+        <button type="submit" disabled={submitting} style={primaryButtonStyle}>
+          {submitting ? 'Enviando...' : isFork ? 'Bifurcar' : 'Responder'}
+        </button>
+        <button type="button" onClick={onCancel} style={ghostButtonStyle}>
+          Cancelar
+        </button>
       </div>
     </form>
   );

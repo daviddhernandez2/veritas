@@ -1,28 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { reliabilityColor } from '../utils/reliability.js';
+import { colors, radii, spacing, typography, shadows, reliabilityGradient, secondaryButtonStyle } from '../styles/tokens.js';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 import ReplyForm from './ReplyForm.jsx';
 import PostModeration from './PostModeration.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
-// Fork = ámbar (#d29922), igual que en PostNode/Sunburst — el mockup de
-// referencia usaba gris para los forks, pero este proyecto ya fijó el
-// ámbar como su propio lenguaje visual para bifurcaciones.
-const FORK_COLOR = '#d29922';
+const FORK_COLOR = colors.accent.fork;
 
 function sourceChipStyle(weight) {
-  const color = reliabilityColor(weight);
+  const color = reliabilityGradient(weight);
   return {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 6,
     padding: '1px 7px',
-    borderRadius: 999,
-    fontSize: 11.5,
+    borderRadius: radii.pill,
+    fontSize: typography.size.sm,
     fontWeight: 500,
     border: `1px solid ${color}`,
     color,
-    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+    fontFamily: typography.monoFontFamily,
     whiteSpace: 'nowrap'
   };
 }
@@ -207,9 +204,9 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: spacing.xs, marginBottom: 10 }}>
         {crumbs.map((post, i) => (
-          <span key={post._id} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <span key={post._id} style={{ display: 'inline-flex', alignItems: 'center', gap: spacing.xs }}>
             <button
               onClick={() => setSelectedId(post._id)}
               style={
@@ -219,12 +216,12 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                       alignItems: 'center',
                       gap: 5,
                       padding: '3px 9px',
-                      borderRadius: 6,
+                      borderRadius: radii.md,
                       border: `1px dashed ${FORK_COLOR}`,
-                      background: '#12171f',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: '#e6edf3',
+                      background: colors.surface.sunken,
+                      fontSize: typography.size.sm,
+                      fontWeight: typography.weight.semibold,
+                      color: colors.text.primary,
                       cursor: 'pointer'
                     }
                   : {
@@ -232,12 +229,12 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                       alignItems: 'center',
                       gap: 5,
                       padding: '3px 9px',
-                      borderRadius: 6,
-                      border: `1px solid ${post._id === selectedId ? '#30363d' : 'transparent'}`,
-                      background: post._id === selectedId ? '#0d1117' : 'transparent',
-                      fontSize: 12,
-                      fontWeight: post._id === selectedId ? 600 : 400,
-                      color: post._id === selectedId ? '#e6edf3' : '#8b949e',
+                      borderRadius: radii.md,
+                      border: `1px solid ${post._id === selectedId ? colors.border.default : 'transparent'}`,
+                      background: post._id === selectedId ? colors.surface.base : 'transparent',
+                      fontSize: typography.size.sm,
+                      fontWeight: post._id === selectedId ? typography.weight.semibold : typography.weight.regular,
+                      color: post._id === selectedId ? colors.text.primary : colors.text.muted,
                       cursor: 'pointer'
                     }
               }
@@ -245,29 +242,29 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
               {post.postType === 'fork' && <span>↳</span>}
               <span>{post.postType === 'fork' ? post.forkLabel : i === 0 ? 'Raíz del hilo' : post.authorId?.username || '—'}</span>
             </button>
-            {i < crumbs.length - 1 && <span style={{ fontSize: 12, color: '#6e7681' }}>›</span>}
+            {i < crumbs.length - 1 && <span style={{ fontSize: typography.size.sm, color: colors.text.dim }}>›</span>}
           </span>
         ))}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: sm ? '1fr' : 'minmax(0,1fr) 300px', gap: 14, alignItems: 'start' }}>
-        <div style={{ border: '1px solid #30363d', borderRadius: 6, background: '#0d1117', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, padding: '7px 10px', background: '#161b22', borderBottom: '1px solid #30363d' }}>
+        <div style={{ border: `1px solid ${colors.border.default}`, borderRadius: radii.md, background: colors.surface.base, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: spacing.sm, padding: '7px 10px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}` }}>
             {!sm && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12, fontSize: 11.5, color: '#8b949e' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing.md, fontSize: typography.size.sm, color: colors.text.muted }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ width: 18, height: 0, borderTop: `1px dashed ${FORK_COLOR}`, display: 'inline-block' }} />
                   bifurcación
                 </span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 18, height: 0, borderTop: '1px solid #30363d', display: 'inline-block' }} />
+                  <span style={{ width: 18, height: 0, borderTop: `1px solid ${colors.border.default}`, display: 'inline-block' }} />
                   respuesta directa
                 </span>
               </span>
             )}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing.sm, marginLeft: 'auto' }}>
               <button onClick={() => zoomAt(zoom - 0.15)} style={zoomBtnStyle}>−</button>
-              <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 11.5, color: '#8b949e', width: 38, textAlign: 'center' }}>
+              <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.sm, color: colors.text.muted, width: 38, textAlign: 'center' }}>
                 {Math.round(zoom * 100)}%
               </span>
               <button onClick={() => zoomAt(zoom + 0.15)} style={zoomBtnStyle}>+</button>
@@ -295,7 +292,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
               style={{
                 position: 'absolute',
                 inset: 0,
-                backgroundImage: 'radial-gradient(#1b2229 1px, transparent 1px)',
+                backgroundImage: `radial-gradient(${colors.surface.grid} 1px, transparent 1px)`,
                 backgroundSize: '22px 22px',
                 backgroundPosition: `${Math.round(pan.x % 22)}px ${Math.round(pan.y % 22)}px`,
                 pointerEvents: 'none'
@@ -314,7 +311,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
             >
               <svg width={layout.w} height={layout.h} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
                 {layout.edges.map((e, i) => (
-                  <path key={i} d={e.d} fill="none" stroke={e.fork ? FORK_COLOR : '#30363d'} strokeWidth={e.fork ? 1.4 : 1.6} strokeDasharray={e.fork ? '5 4' : '0'} />
+                  <path key={i} d={e.d} fill="none" stroke={e.fork ? FORK_COLOR : colors.border.default} strokeWidth={e.fork ? 1.4 : 1.6} strokeDasharray={e.fork ? '5 4' : '0'} />
                 ))}
               </svg>
 
@@ -334,33 +331,33 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                         height: r.h,
                         padding: 0,
                         overflow: 'hidden',
-                        background: isHidden ? '#1a1011' : isFork ? '#12171f' : '#161b22',
-                        border: `1px ${isFork ? 'dashed' : 'solid'} ${isSelected ? '#e6edf3' : isHidden ? '#5c2b28' : isFork ? FORK_COLOR : '#30363d'}`,
-                        borderRadius: 6,
+                        background: isHidden ? colors.danger.bg : isFork ? colors.surface.sunken : colors.surface.panel,
+                        border: `1px ${isFork ? 'dashed' : 'solid'} ${isSelected ? colors.text.primary : isHidden ? colors.danger.border : isFork ? FORK_COLOR : colors.border.default}`,
+                        borderRadius: radii.md,
                         cursor: 'pointer',
                         font: 'inherit',
                         color: 'inherit',
                         textAlign: 'left',
-                        boxShadow: isSelected ? '0 0 0 3px rgba(230,237,243,0.12)' : 'none'
+                        boxShadow: isSelected ? shadows.selectedRing : 'none'
                       }}
                     >
-                      <span style={{ display: 'block', height: 3, width: '100%', background: reliabilityColor(post.reliabilityAgg) }} />
+                      <span style={{ display: 'block', height: 3, width: '100%', background: reliabilityGradient(post.reliabilityAgg) }} />
                       {isFork && (
                         <span style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 10px', marginTop: 8 }}>
-                          <span style={{ fontSize: 11, color: '#8b949e' }}>↳</span>
-                          <span style={{ fontSize: 11.5, fontWeight: 600, color: '#e6edf3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.forkLabel}</span>
+                          <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>↳</span>
+                          <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.forkLabel}</span>
                         </span>
                       )}
                       <span style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 10px 0' }}>
                         <ReliabilityBadge value={post.reliabilityAgg} />
-                        <span style={{ fontSize: 12.5, fontWeight: 600, color: '#e6edf3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {post.authorId?.username || '—'}
                         </span>
                       </span>
                       {isHidden ? (
-                        <span style={{ display: 'block', padding: '6px 10px 0', fontSize: 11.5, lineHeight: 1.45, color: '#ffb4ad' }}>⚠ Oculto por reportes</span>
+                        <span style={{ display: 'block', padding: '6px 10px 0', fontSize: typography.size.sm, lineHeight: 1.45, color: colors.danger.text }}>⚠ Oculto por reportes</span>
                       ) : (
-                        <span style={{ display: 'block', padding: '6px 10px 0', fontSize: 11.5, lineHeight: 1.45, color: '#8b949e', overflow: 'hidden' }}>
+                        <span style={{ display: 'block', padding: '6px 10px 0', fontSize: typography.size.sm, lineHeight: 1.45, color: colors.text.muted, overflow: 'hidden' }}>
                           {(post.content || '').slice(0, sm ? 52 : 78)}…
                         </span>
                       )}
@@ -382,12 +379,12 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                           minWidth: 24,
                           height: 19,
                           padding: '0 6px',
-                          borderRadius: 999,
-                          border: `1px solid ${isFork ? FORK_COLOR : '#30363d'}`,
-                          background: '#0d1117',
-                          color: '#8b949e',
-                          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                          fontSize: 10.5,
+                          borderRadius: radii.pill,
+                          border: `1px solid ${isFork ? FORK_COLOR : colors.border.default}`,
+                          background: colors.surface.base,
+                          color: colors.text.muted,
+                          fontFamily: typography.monoFontFamily,
+                          fontSize: typography.size.xs,
                           lineHeight: 1,
                           cursor: 'pointer'
                         }}
@@ -402,36 +399,36 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ border: '1px solid #30363d', borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{ padding: '8px 12px', background: '#161b22', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.md }}>
+          <div style={{ border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
+            <div style={{ padding: '8px 12px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}`, fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>
               Nodo seleccionado
             </div>
-            <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 9 }}>
+            <div style={{ padding: spacing.md, display: 'flex', flexDirection: 'column', gap: 9 }}>
               <PostModeration post={selected} onReport={onReport} onAppeal={onAppeal}>
                 {selected.postType === 'fork' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '8px 10px', border: `1px dashed ${FORK_COLOR}`, borderRadius: 6, background: '#12171f', marginBottom: 9 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>↳ Bifurcación: {selected.forkLabel}</span>
-                    <span style={{ fontSize: 11.5, color: '#6e7681' }}>{selected.forkRationale}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.xs, padding: '8px 10px', border: `1px dashed ${FORK_COLOR}`, borderRadius: radii.md, background: colors.surface.sunken, marginBottom: 9 }}>
+                    <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>↳ Bifurcación: {selected.forkLabel}</span>
+                    <span style={{ fontSize: typography.size.sm, color: colors.text.dim }}>{selected.forkRationale}</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 9 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap', marginBottom: 9 }}>
                   <ReliabilityBadge value={selected.reliabilityAgg} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3' }}>{selected.authorId?.username || '—'}</span>
+                  <span style={{ fontSize: typography.size.body, fontWeight: typography.weight.semibold, color: colors.text.primary }}>{selected.authorId?.username || '—'}</span>
                 </div>
-                {selected.title && <div style={{ fontSize: 14, fontWeight: 600, color: '#e6edf3', marginBottom: 9 }}>{selected.title}</div>}
-                <div style={{ fontSize: 13, lineHeight: 1.6, color: '#c9d1d9', marginBottom: 9 }}>{selected.content}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                {selected.title && <div style={{ fontSize: typography.size.md, fontWeight: typography.weight.semibold, color: colors.text.primary, marginBottom: 9 }}>{selected.title}</div>}
+                <div style={{ fontSize: typography.size.body, lineHeight: 1.6, color: colors.text.body, marginBottom: 9 }}>{selected.content}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
                   <span style={sourceChipStyle(selected.sourceWeight)}>
                     {selected.sourceType} {selected.sourceWeight.toFixed(2)}
                   </span>
-                  <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 11, color: '#6e7681' }}>
+                  <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.dim }}>
                     {selected.childCount} en rama · nivel {selected.depth}
                   </span>
                 </div>
                 {user && selected.status !== 'hidden' && (
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingTop: 9 }}>
-                    <button onClick={() => setReplying((r) => !r)} style={sideActionStyle}>
+                  <div style={{ display: 'flex', gap: spacing.sm, flexWrap: 'wrap', paddingTop: 9 }}>
+                    <button onClick={() => setReplying((r) => !r)} style={secondaryButtonStyle}>
                       {replying ? 'Cancelar' : 'Responder'}
                     </button>
                   </div>
@@ -441,14 +438,14 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
             </div>
           </div>
 
-          <div style={{ border: '1px solid #30363d', borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '8px 12px', background: '#161b22', borderBottom: '1px solid #30363d' }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>Ramas hijas directas</span>
-              <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 11, color: '#6e7681', marginLeft: 'auto' }}>
+          <div style={{ border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: spacing.sm, padding: '8px 12px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}` }}>
+              <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>Ramas hijas directas</span>
+              <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.dim, marginLeft: 'auto' }}>
                 {selectedChildren.length}
               </span>
             </div>
-            {selectedChildren.length === 0 && <div style={{ padding: 12, fontSize: 12.5, color: '#6e7681' }}>Sin respuestas todavía.</div>}
+            {selectedChildren.length === 0 && <div style={{ padding: spacing.md, fontSize: typography.size.sm, color: colors.text.dim }}>Sin respuestas todavía.</div>}
             {selectedChildren.map((child) => {
               const childHidden = child.status === 'hidden';
               return (
@@ -461,9 +458,9 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                     gap: 9,
                     width: '100%',
                     padding: 13,
-                    background: childHidden ? '#1a1011' : child.postType === 'fork' ? '#12171f' : '#161b22',
-                    border: `1px ${child.postType === 'fork' ? 'dashed' : 'solid'} ${childHidden ? '#5c2b28' : child.postType === 'fork' ? FORK_COLOR : '#30363d'}`,
-                    borderRadius: 6,
+                    background: childHidden ? colors.danger.bg : child.postType === 'fork' ? colors.surface.sunken : colors.surface.panel,
+                    border: `1px ${child.postType === 'fork' ? 'dashed' : 'solid'} ${childHidden ? colors.danger.border : child.postType === 'fork' ? FORK_COLOR : colors.border.default}`,
+                    borderRadius: radii.md,
                     borderTop: 'none',
                     cursor: 'pointer',
                     textAlign: 'left',
@@ -472,16 +469,16 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                   }}
                 >
                   {child.postType === 'fork' && (
-                    <span style={{ fontSize: 11.5, fontWeight: 600, color: '#e6edf3' }}>↳ {child.forkLabel}</span>
+                    <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>↳ {child.forkLabel}</span>
                   )}
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
                     <ReliabilityBadge value={child.reliabilityAgg} />
-                    <span style={{ fontSize: 12.5, color: '#c9d1d9' }}>{child.authorId?.username || '—'}</span>
+                    <span style={{ fontSize: typography.size.sm, color: colors.text.body }}>{child.authorId?.username || '—'}</span>
                   </span>
                   {childHidden ? (
-                    <span style={{ fontSize: 11, color: '#ffb4ad' }}>⚠ Oculto por reportes</span>
+                    <span style={{ fontSize: typography.size.xs, color: colors.danger.text }}>⚠ Oculto por reportes</span>
                   ) : (
-                    <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 10.5, color: '#6e7681' }}>
+                    <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.dim }}>
                       {child.sourceType} {child.sourceWeight.toFixed(2)} · {child.childCount} resp.
                     </span>
                   )}
@@ -498,11 +495,11 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
 const zoomBtnStyle = {
   width: 22,
   height: 22,
-  borderRadius: 6,
-  border: '1px solid #30363d',
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontSize: 13,
+  borderRadius: radii.md,
+  border: `1px solid ${colors.border.default}`,
+  background: colors.surface.base,
+  color: colors.text.primary,
+  fontSize: typography.size.body,
   lineHeight: 1,
   cursor: 'pointer',
   padding: 0
@@ -510,22 +507,11 @@ const zoomBtnStyle = {
 
 const fitBtnStyle = {
   padding: '3px 9px',
-  borderRadius: 6,
-  border: '1px solid #30363d',
-  background: '#0d1117',
-  color: '#e6edf3',
-  fontSize: 11.5,
-  fontWeight: 600,
-  cursor: 'pointer'
-};
-
-const sideActionStyle = {
-  background: '#21262d',
-  border: '1px solid #30363d',
-  borderRadius: 6,
-  padding: '4px 11px',
-  fontSize: 12,
-  fontWeight: 600,
-  color: '#e6edf3',
+  borderRadius: radii.md,
+  border: `1px solid ${colors.border.default}`,
+  background: colors.surface.base,
+  color: colors.text.primary,
+  fontSize: typography.size.sm,
+  fontWeight: typography.weight.semibold,
   cursor: 'pointer'
 };

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { colors, radii, spacing, typography, ghostButtonStyle, primaryButtonStyle, inputStyle } from '../styles/tokens.js';
 
 const REPORT_REASONS = [
   { value: 'fuente_falsa', label: 'Fuente falsa o engañosa' },
@@ -8,6 +9,17 @@ const REPORT_REASONS = [
   { value: 'irrelevante', label: 'Contenido irrelevante' },
   { value: 'otro', label: 'Otro' }
 ];
+
+const dangerGhostButtonStyle = {
+  background: 'transparent',
+  border: `1px solid ${colors.danger.border}`,
+  borderRadius: radii.md,
+  padding: '4px 11px',
+  fontSize: typography.size.sm,
+  fontWeight: typography.weight.semibold,
+  color: colors.danger.text,
+  cursor: 'pointer'
+};
 
 // Controles de moderación compartidos entre la vista clásica y el
 // árbol/camino (mismo motivo que ReplyForm/ReliabilityBadge son
@@ -29,21 +41,21 @@ export default function PostModeration({ post, onReport, onAppeal, children }) {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 8,
+          gap: spacing.sm,
           padding: '10px 12px',
-          border: '1px solid #5c2b28',
-          borderRadius: 6,
-          background: '#1a1011'
+          border: `1px solid ${colors.danger.border}`,
+          borderRadius: radii.md,
+          background: colors.danger.bg
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#ffb4ad' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, fontSize: typography.size.body, color: colors.danger.text }}>
           <span>⚠</span>
           <span>
             Oculto automáticamente por reportes ({post.reportCount} {post.reportCount === 1 ? 'reporte' : 'reportes'})
           </span>
         </div>
         <div>
-          <button onClick={() => setRevealed(true)} style={ghostButtonStyle('#5c2b28', '#ffb4ad')}>
+          <button onClick={() => setRevealed(true)} style={dangerGhostButtonStyle}>
             Ver de todos modos
           </button>
         </div>
@@ -56,9 +68,9 @@ export default function PostModeration({ post, onReport, onAppeal, children }) {
       {children}
 
       {isHidden && (
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: spacing.sm }}>
           {post.appealed ? (
-            <span style={{ fontSize: 12, color: '#8b949e' }}>Apelación enviada — pendiente de revisión.</span>
+            <span style={{ fontSize: typography.size.sm, color: colors.text.muted }}>Apelación enviada — pendiente de revisión.</span>
           ) : isOwnPost ? (
             appealing ? (
               <AppealForm
@@ -69,7 +81,7 @@ export default function PostModeration({ post, onReport, onAppeal, children }) {
                 onCancel={() => setAppealing(false)}
               />
             ) : (
-              <button onClick={() => setAppealing(true)} style={ghostButtonStyle('#30363d', '#e6edf3')}>
+              <button onClick={() => setAppealing(true)} style={ghostButtonStyle}>
                 Apelar
               </button>
             )
@@ -78,7 +90,7 @@ export default function PostModeration({ post, onReport, onAppeal, children }) {
       )}
 
       {!isHidden && user && !isOwnPost && (
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: spacing.sm }}>
           {reporting ? (
             <ReportForm
               onSubmit={async (data) => {
@@ -88,7 +100,7 @@ export default function PostModeration({ post, onReport, onAppeal, children }) {
               onCancel={() => setReporting(false)}
             />
           ) : (
-            <button onClick={() => setReporting(true)} style={ghostButtonStyle('#30363d', '#8b949e')}>
+            <button onClick={() => setReporting(true)} style={ghostButtonStyle}>
               Reportar
             </button>
           )}
@@ -118,8 +130,8 @@ function ReportForm({ onSubmit, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, maxWidth: 320 }}>
-      <select value={reason} onChange={(e) => setReason(e.target.value)} required>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm - 2, marginTop: spacing.sm - 2, maxWidth: 320 }}>
+      <select value={reason} onChange={(e) => setReason(e.target.value)} required style={inputStyle}>
         <option value="" disabled>
           Motivo del reporte
         </option>
@@ -129,13 +141,13 @@ function ReportForm({ onSubmit, onCancel }) {
           </option>
         ))}
       </select>
-      <input placeholder="Comentario (opcional)" value={note} onChange={(e) => setNote(e.target.value)} />
-      {error && <p style={{ color: '#f85149', fontSize: 12, margin: 0 }}>{error}</p>}
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button type="submit" disabled={submitting || !reason}>
+      <input placeholder="Comentario (opcional)" value={note} onChange={(e) => setNote(e.target.value)} style={inputStyle} />
+      {error && <p style={{ color: colors.reliability.low, fontSize: typography.size.sm, margin: 0 }}>{error}</p>}
+      <div style={{ display: 'flex', gap: spacing.sm }}>
+        <button type="submit" disabled={submitting || !reason} style={primaryButtonStyle}>
           {submitting ? 'Enviando...' : 'Enviar reporte'}
         </button>
-        <button type="button" onClick={onCancel}>
+        <button type="button" onClick={onCancel} style={ghostButtonStyle}>
           Cancelar
         </button>
       </div>
@@ -162,36 +174,24 @@ function AppealForm({ onSubmit, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6, maxWidth: 320 }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm - 2, marginTop: spacing.sm - 2, maxWidth: 320 }}>
       <textarea
         placeholder="Por qué crees que el reporte es incorrecto"
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={3}
         required
+        style={inputStyle}
       />
-      {error && <p style={{ color: '#f85149', fontSize: 12, margin: 0 }}>{error}</p>}
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button type="submit" disabled={submitting || !text}>
+      {error && <p style={{ color: colors.reliability.low, fontSize: typography.size.sm, margin: 0 }}>{error}</p>}
+      <div style={{ display: 'flex', gap: spacing.sm }}>
+        <button type="submit" disabled={submitting || !text} style={primaryButtonStyle}>
           {submitting ? 'Enviando...' : 'Enviar apelación'}
         </button>
-        <button type="button" onClick={onCancel}>
+        <button type="button" onClick={onCancel} style={ghostButtonStyle}>
           Cancelar
         </button>
       </div>
     </form>
   );
-}
-
-function ghostButtonStyle(borderColor, color) {
-  return {
-    background: 'transparent',
-    border: `1px solid ${borderColor}`,
-    borderRadius: 6,
-    padding: '4px 11px',
-    fontSize: 12,
-    fontWeight: 600,
-    color,
-    cursor: 'pointer'
-  };
 }

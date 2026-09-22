@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { colors, radii, spacing, typography, primaryButtonStyle, inputStyle, logoGradient } from '../styles/tokens.js';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -25,17 +26,52 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 360, margin: '80px auto' }}>
-      <h1>Entrar</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        {error && <p style={{ color: '#f85149' }}>{error}</p>}
-        <button type="submit" disabled={submitting}>{submitting ? 'Entrando...' : 'Entrar'}</button>
-      </form>
-      <p style={{ marginTop: 16 }}>
-        ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
-      </p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: `${spacing.xxl}px ${spacing.lg}px` }}>
+      <div style={{ width: '100%', maxWidth: 360 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xxl }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+            <div style={{ width: 26, height: 26, borderRadius: '50%', background: logoGradient, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 9, height: 9, borderRadius: '50%', background: colors.surface.base }} />
+            </div>
+            <div style={{ fontSize: typography.size.xxl, fontWeight: typography.weight.semibold, color: colors.text.primary }}>Veritas</div>
+          </div>
+        </div>
+
+        <div style={{ border: `1px solid ${colors.border.default}`, borderRadius: radii.md, background: colors.surface.panel, padding: spacing.lg + 2 }}>
+          <div style={{ display: 'flex', borderBottom: `1px solid ${colors.border.default}`, margin: `-${spacing.lg + 2}px -${spacing.lg + 2}px ${spacing.lg + 2}px`, padding: '0 6px' }}>
+            <span style={{ padding: '9px 12px', fontSize: typography.size.body, fontWeight: typography.weight.semibold, color: colors.text.primary, borderBottom: `2px solid ${colors.accent.tabActive}` }}>
+              Entrar
+            </span>
+            <Link
+              to="/register"
+              style={{ padding: '9px 12px', fontSize: typography.size.body, fontWeight: typography.weight.regular, color: colors.text.muted, textDecoration: 'none' }}
+            >
+              Crear cuenta
+            </Link>
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>Correo</span>
+              <input type="email" placeholder="tu@correo.org" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>Contraseña</span>
+              <input type="password" placeholder="••••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
+            </label>
+
+            {error && <p style={{ color: colors.reliability.low, fontSize: typography.size.sm, margin: 0 }}>{error}</p>}
+
+            <button type="submit" disabled={submitting} style={{ ...primaryButtonStyle, marginTop: 2, padding: 9, width: '100%' }}>
+              {submitting ? 'Entrando...' : 'Entrar'}
+            </button>
+          </form>
+        </div>
+
+        <p style={{ marginTop: spacing.lg, textAlign: 'center', fontSize: typography.size.sm, color: colors.text.muted }}>
+          ¿No tienes cuenta? <Link to="/register" style={{ color: colors.accent.link }}>Regístrate</Link>
+        </p>
+      </div>
     </div>
   );
 }

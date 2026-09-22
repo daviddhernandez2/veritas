@@ -6,6 +6,7 @@ import { listSourceWeightsRequest } from '../api/sourceWeights.js';
 import PostNode from '../components/PostNode.jsx';
 import Sunburst from '../components/Sunburst.jsx';
 import TreeView from '../components/TreeView.jsx';
+import { colors, spacing, typography } from '../styles/tokens.js';
 
 export default function ThreadPage() {
   const { id } = useParams();
@@ -69,11 +70,11 @@ export default function ThreadPage() {
     setTreeData(null);
   }
 
-  if (loading) return <p style={{ maxWidth: 720, margin: '40px auto' }}>Cargando hilo...</p>;
-  if (error) return <p style={{ maxWidth: 720, margin: '40px auto', color: '#f85149' }}>{error}</p>;
+  if (loading) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.text.muted }}>Cargando hilo...</p>;
+  if (error) return <p style={{ maxWidth: 720, margin: '40px auto', color: colors.reliability.low }}>{error}</p>;
 
   const root = posts.find((p) => p.parentId === null);
-  if (!root) return <p>Hilo no encontrado.</p>;
+  if (!root) return <p style={{ color: colors.text.muted }}>Hilo no encontrado.</p>;
 
   // Construimos el índice parentId -> hijos UNA vez por render, no
   // dentro de cada PostNode — evita recorrer el array entero por nodo.
@@ -86,19 +87,21 @@ export default function ThreadPage() {
   }
 
   const tabStyle = (tab) => ({
-    padding: '6px 14px',
-    borderRadius: 6,
-    border: '1px solid #30363d',
-    background: view === tab ? '#238636' : 'transparent',
-    color: '#e6edf3',
+    padding: '9px 14px',
+    border: 'none',
+    borderBottom: `2px solid ${view === tab ? colors.accent.tabActive : 'transparent'}`,
+    background: 'transparent',
+    color: view === tab ? colors.text.primary : colors.text.muted,
+    fontSize: typography.size.body,
+    fontWeight: view === tab ? typography.weight.semibold : typography.weight.regular,
     cursor: 'pointer'
   });
 
   return (
-    <div style={{ maxWidth: view === 'tree' || view === 'sunburst' ? 1100 : 720, margin: '40px auto', padding: '0 16px' }}>
-      <Link to="/">← Volver a hilos</Link>
+    <div style={{ maxWidth: view === 'tree' || view === 'sunburst' ? 1100 : 720, margin: '40px auto', padding: `0 ${spacing.lg}px` }}>
+      <Link to="/" style={{ color: colors.text.muted, fontSize: typography.size.sm }}>← Volver a hilos</Link>
 
-      <div style={{ display: 'flex', gap: 8, margin: '16px 0' }}>
+      <div style={{ display: 'flex', gap: 2, margin: `${spacing.lg}px 0`, borderBottom: `1px solid ${colors.border.default}` }}>
         <button style={tabStyle('classic')} onClick={() => setView('classic')}>
           Clásica
         </button>
@@ -123,7 +126,7 @@ export default function ThreadPage() {
       {view === 'sunburst' && <Sunburst posts={posts} />}
       {view === 'tree' &&
         (treeLoading || !treeData ? (
-          <p style={{ opacity: 0.7 }}>Cargando árbol...</p>
+          <p style={{ opacity: 0.7, color: colors.text.muted }}>Cargando árbol...</p>
         ) : (
           <TreeView
             posts={treeData.posts}

@@ -3,6 +3,7 @@ import ReplyForm from './ReplyForm.jsx';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 import PostModeration from './PostModeration.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { colors, radii, spacing, typography, secondaryButtonStyle } from '../styles/tokens.js';
 
 // `childrenByParent` es un Map: parentId -> array de posts hijos.
 // Cada PostNode se dibuja a sí mismo y luego se llama a sí mismo para
@@ -21,32 +22,32 @@ export default function PostNode({ post, childrenByParent, sourceWeights, onRepl
   }
 
   return (
-    <div style={{ marginLeft: depth === 0 ? 0 : 20, borderLeft: depth === 0 ? 'none' : '1px solid #30363d', paddingLeft: depth === 0 ? 0 : 12, marginTop: 12 }}>
+    <div style={{ marginLeft: depth === 0 ? 0 : 20, borderLeft: depth === 0 ? 'none' : `1px solid ${colors.border.default}`, paddingLeft: depth === 0 ? 0 : spacing.md, marginTop: spacing.md }}>
       <div
         style={{
-          border: '1px solid #30363d',
-          borderRadius: 6,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radii.md,
           padding: 10,
-          borderLeft: post.postType === 'fork' ? '3px solid #d29922' : '1px solid #30363d'
+          borderLeft: post.postType === 'fork' ? `3px solid ${colors.accent.fork}` : `1px solid ${colors.border.default}`
         }}
       >
         <PostModeration post={post} onReport={onReport} onAppeal={onAppeal}>
           {post.postType === 'fork' && (
-            <div style={{ fontSize: 12, color: '#d29922', marginBottom: 6 }}>
+            <div style={{ fontSize: typography.size.sm, color: colors.accent.fork, marginBottom: spacing.xs + 2 }}>
               ↳ Bifurcación: {post.forkLabel}
-              <div style={{ opacity: 0.7, fontWeight: 400 }}>{post.forkRationale}</div>
+              <div style={{ opacity: 0.7, fontWeight: typography.weight.regular }}>{post.forkRationale}</div>
             </div>
           )}
           {post.title && <h3 style={{ margin: '0 0 6px' }}>{post.title}</h3>}
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{post.authorId?.username || '—'}</div>
-          <p style={{ margin: 0 }}>{post.content}</p>
-          <div style={{ fontSize: 12, opacity: 0.7, marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: typography.size.body, fontWeight: typography.weight.semibold, marginBottom: spacing.xs }}>{post.authorId?.username || '—'}</div>
+          <p style={{ margin: 0, color: colors.text.body }}>{post.content}</p>
+          <div style={{ fontSize: typography.size.sm, opacity: 0.7, marginTop: spacing.xs + 2, display: 'flex', alignItems: 'center', gap: spacing.sm }}>
             <span>Fuente: {post.sourceType} (peso {post.sourceWeight})</span>
             <ReliabilityBadge value={post.reliabilityAgg} />
           </div>
           {user && post.status !== 'hidden' && (
-            <div style={{ marginTop: 6 }}>
-              <button onClick={() => setReplying((r) => !r)}>
+            <div style={{ marginTop: spacing.xs + 2 }}>
+              <button onClick={() => setReplying((r) => !r)} style={secondaryButtonStyle}>
                 {replying ? 'Cancelar' : 'Responder'}
               </button>
             </div>
@@ -57,8 +58,8 @@ export default function PostNode({ post, childrenByParent, sourceWeights, onRepl
         </PostModeration>
 
         {children.length > 0 && (
-          <div style={{ marginTop: 6 }}>
-            <button onClick={() => setCollapsed((c) => !c)}>
+          <div style={{ marginTop: spacing.xs + 2 }}>
+            <button onClick={() => setCollapsed((c) => !c)} style={secondaryButtonStyle}>
               {collapsed ? `Mostrar ${children.length} respuestas` : 'Colapsar'}
             </button>
           </div>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { reliabilityColor } from '../utils/reliability.js';
+import { colors, radii, spacing, typography, reliabilityGradient } from '../styles/tokens.js';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 
 const WIDTH = 640;
@@ -100,7 +100,7 @@ export default function Sunburst({ posts }) {
       .style('max-width', `${WIDTH}px`)
       .style('display', 'block')
       .style('margin', '0 auto')
-      .style('font', '10px system-ui');
+      .style('font', `${typography.size.xs}px ${typography.fontFamily}`);
 
     const g = svg.append('g');
 
@@ -109,8 +109,8 @@ export default function Sunburst({ posts }) {
       .selectAll('path')
       .data(root.descendants().slice(1))
       .join('path')
-      .attr('fill', (d) => reliabilityColor(d.data.reliabilityAgg))
-      .attr('stroke', (d) => (d.data.postType === 'fork' ? '#d29922' : '#0d1117'))
+      .attr('fill', (d) => reliabilityGradient(d.data.reliabilityAgg))
+      .attr('stroke', (d) => (d.data.postType === 'fork' ? colors.accent.fork : colors.surface.base))
       .attr('stroke-width', (d) => (d.data.postType === 'fork' ? 2 : 0.5))
       .attr('fill-opacity', (d) => arcOpacity(d, arcVisible(d.current), highlightedAuthorRef.current))
       .attr('pointer-events', (d) => (arcVisible(d.current) ? 'auto' : 'none'))
@@ -136,7 +136,7 @@ export default function Sunburst({ posts }) {
       .selectAll('text')
       .data(root.descendants().slice(1))
       .join('text')
-      .attr('fill', '#0d1117')
+      .attr('fill', colors.surface.base)
       .attr('fill-opacity', (d) => +labelVisible(d.current))
       .attr('transform', (d) => labelTransform(d.current))
       .text((d) => (d.data.title || d.data.content || '').slice(0, 18));
@@ -145,13 +145,13 @@ export default function Sunburst({ posts }) {
       .append('circle')
       .datum(root)
       .attr('r', RADIUS)
-      .attr('fill', reliabilityColor(root.data.reliabilityAgg))
+      .attr('fill', reliabilityGradient(root.data.reliabilityAgg))
       .attr('pointer-events', 'all')
       .style('cursor', 'pointer')
       .on('click', clicked);
 
     function clicked(event, p) {
-      parent.datum(p.parent || root).attr('fill', reliabilityColor((p.parent || root).data.reliabilityAgg));
+      parent.datum(p.parent || root).attr('fill', reliabilityGradient((p.parent || root).data.reliabilityAgg));
       setFocus(p.data);
 
       root.each(
@@ -201,7 +201,7 @@ export default function Sunburst({ posts }) {
   }
 
   return (
-    <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: spacing.xl, alignItems: 'flex-start', flexWrap: 'wrap' }}>
       <div style={{ flex: '1 1 480px', minWidth: 0 }}>
         <div style={{ position: 'relative' }}>
           <svg ref={svgRef} />
@@ -217,10 +217,10 @@ export default function Sunburst({ posts }) {
               pointerEvents: 'none'
             }}
           >
-            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0d1117' }}>
+            <div style={{ fontSize: typography.size.xs - 1, fontWeight: typography.weight.semibold, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.surface.base }}>
               {focus?.parentId ? 'Rama' : 'Raíz'}
             </div>
-            <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 24, fontWeight: 600, color: '#0d1117', lineHeight: 1 }}>
+            <div style={{ fontFamily: typography.monoFontFamily, fontSize: 24, fontWeight: typography.weight.semibold, color: colors.surface.base, lineHeight: 1 }}>
               {focus?.reliabilityAgg == null ? '—' : focus.reliabilityAgg.toFixed(2)}
             </div>
           </div>
@@ -230,41 +230,39 @@ export default function Sunburst({ posts }) {
                 position: 'fixed',
                 left: tooltip.x + 12,
                 top: tooltip.y + 12,
-                background: '#161b22',
-                border: '1px solid #30363d',
-                borderRadius: 6,
+                background: colors.surface.panel,
+                border: `1px solid ${colors.border.default}`,
+                borderRadius: radii.md,
                 padding: '8px 10px',
-                fontSize: 12,
+                fontSize: typography.size.sm,
                 maxWidth: 260,
                 pointerEvents: 'none',
                 zIndex: 10
               }}
             >
-              {tooltip.post.title && <div style={{ fontWeight: 600, marginBottom: 4 }}>{tooltip.post.title}</div>}
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{tooltip.post.authorId?.username || '—'}</div>
+              {tooltip.post.title && <div style={{ fontWeight: typography.weight.semibold, marginBottom: 4 }}>{tooltip.post.title}</div>}
+              <div style={{ fontWeight: typography.weight.semibold, marginBottom: 4 }}>{tooltip.post.authorId?.username || '—'}</div>
               <div style={{ opacity: 0.85, marginBottom: 4 }}>
                 {tooltip.post.content?.slice(0, 140)}
                 {tooltip.post.content?.length > 140 ? '…' : ''}
               </div>
-              <div style={{ display: 'flex', gap: 8, opacity: 0.7 }}>
+              <div style={{ display: 'flex', gap: spacing.sm, opacity: 0.7 }}>
                 <span>Fuente: {tooltip.post.sourceType}</span>
                 <span>Fiabilidad: {tooltip.post.reliabilityAgg == null ? '—' : tooltip.post.reliabilityAgg.toFixed(2)}</span>
               </div>
-              {tooltip.post.postType === 'fork' && <div style={{ color: '#d29922', marginTop: 4 }}>↳ Bifurcación: {tooltip.post.forkLabel}</div>}
+              {tooltip.post.postType === 'fork' && <div style={{ color: colors.accent.fork, marginTop: 4 }}>↳ Bifurcación: {tooltip.post.forkLabel}</div>}
             </div>
           )}
         </div>
         <Legend />
       </div>
 
-      <div style={{ width: 240, flexShrink: 0, border: '1px solid #30363d', borderRadius: 6, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, padding: '8px 12px', background: '#161b22', borderBottom: '1px solid #30363d' }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>Participantes</span>
-          <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 11, color: '#6e7681', marginLeft: 'auto' }}>
-            {participants.length}
-          </span>
+      <div style={{ width: 240, flexShrink: 0, border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, padding: '8px 12px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}` }}>
+          <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>Participantes</span>
+          <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.dim, marginLeft: 'auto' }}>{participants.length}</span>
         </div>
-        {participants.length === 0 && <div style={{ padding: 12, fontSize: 12.5, color: '#6e7681' }}>Sin participantes todavía.</div>}
+        {participants.length === 0 && <div style={{ padding: spacing.md, fontSize: typography.size.sm, color: colors.text.dim }}>Sin participantes todavía.</div>}
         {participants.map((u) => (
           <button
             key={u.id}
@@ -275,9 +273,9 @@ export default function Sunburst({ posts }) {
               alignItems: 'center',
               width: '100%',
               padding: '9px 12px',
-              background: highlightedAuthor === u.id ? '#161b22' : 'transparent',
+              background: highlightedAuthor === u.id ? colors.surface.panel : 'transparent',
               border: 'none',
-              borderBottom: '1px solid #21262d',
+              borderBottom: `1px solid ${colors.border.subtle}`,
               cursor: 'pointer',
               textAlign: 'left',
               font: 'inherit',
@@ -286,10 +284,10 @@ export default function Sunburst({ posts }) {
           >
             <ReliabilityBadge value={u.mean} />
             <span style={{ minWidth: 0, flex: 1 }}>
-              <span style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#e6edf3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ display: 'block', fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {u.username}
               </span>
-              <span style={{ display: 'block', fontSize: 11, color: '#6e7681' }}>
+              <span style={{ display: 'block', fontSize: typography.size.xs, color: colors.text.dim }}>
                 {u.count} {u.count === 1 ? 'intervención' : 'intervenciones'}
               </span>
             </span>
@@ -302,10 +300,10 @@ export default function Sunburst({ posts }) {
 
 function Legend() {
   return (
-    <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 12, fontSize: 12, opacity: 0.8 }}>
-      <LegendItem color="#f85149" label="Baja (< 0.4)" />
-      <LegendItem color="#d29922" label="Media (0.4 – 0.7)" />
-      <LegendItem color="#3fb950" label="Alta (≥ 0.7)" />
+    <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: spacing.md, fontSize: typography.size.sm, opacity: 0.8 }}>
+      <LegendItem color={colors.reliability.low} label="Baja" />
+      <LegendItem color={colors.reliability.mid} label="Media" />
+      <LegendItem color={colors.reliability.high} label="Alta" />
     </div>
   );
 }
