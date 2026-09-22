@@ -23,9 +23,10 @@ postType (reply | fork) es PURAMENTE DESCRIPTIVO — no hay sistema de turnos ni
 NO existe turnState, awaitingReplyFrom ni expiresAt en el modelo — se implementaron y se retiraron deliberadamente, no los reintroduzcas
 Moderación MVP: solo reportes + reputación automática (sin moderador humano todavía). Umbral de auto-ocultación: 3 reportes distintos → post.status='hidden'. Reputación: -10 fijo (suelo 0) al autor por cada post suyo auto-ocultado. Apelaciones: el autor de un post oculto puede apelar, pero solo queda registrada en estado 'pending' — no hay resolución automática ni humana todavía, eso es de una fase posterior. Un post oculto sigue devolviéndose en /classic y /path (no desaparece, para no descolgar a sus hijos), solo cambia cómo se muestra; se excluye de la cascada de reliabilityAgg de sus ancestros en cuanto se oculta
 La capa de verificación por IA está APARCADA deliberadamente
+Documentación interna en GET /api/admin/docs (requireAuth + requireRole('admin')) — contenido en server/src/content/adminDocs.js, servido desde el backend (no embebido en el bundle de React) para que "solo admin" sea real, no solo routing oculto. No hay flujo de producto para promover a alguien a admin — se cambia el role a mano en Mongo, deliberadamente
 Estado actual (ver también README.md del repo)
 
-Completado: Fase 0 (setup), Fase 1 (auth JWT), Fase 2 (hilos/posts + vista clásica), Fase 3 (motor de fiabilidad + badges reales), Fase 4 (reply/fork descriptivo, sin bloqueo), Fase 5 (Sunburst D3), Fase 6 (vista árbol/camino), Fase 7 (moderación: reportes + reputación automática). Pendiente: Fase 8 (documentación interna solo-admin en /admin/docs), Fase 9 (hardening y despliegue).
+Completado: Fase 0 (setup), Fase 1 (auth JWT), Fase 2 (hilos/posts + vista clásica), Fase 3 (motor de fiabilidad + badges reales), Fase 4 (reply/fork descriptivo, sin bloqueo), Fase 5 (Sunburst D3), Fase 6 (vista árbol/camino), Fase 7 (moderación: reportes + reputación automática), Fase 8 (documentación interna solo-admin en /admin/docs). Pendiente: Fase 9 (hardening y despliegue).
 
 Cómo ayudar en este proyecto
 Respuestas técnicas directas, en español, sin rodeos

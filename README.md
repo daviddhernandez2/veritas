@@ -26,9 +26,13 @@ Completado:
   ocultado), y apelaciones (`Appeal`) que quedan registradas en `pending`
   sin resolución todavía (no hay moderador humano hasta una fase
   posterior).
+- **Fase 8** — documentación interna solo-admin en `/admin/docs`: el
+  contenido (arquitectura, fórmulas, moderación, guía operativa,
+  referencia de API) se sirve desde el backend con `requireAuth +
+  requireRole('admin')`, no vive en el bundle del cliente — "solo admin"
+  es real, no solo una ruta oculta.
 
-Pendiente: Fase 8 (documentación interna solo-admin en `/admin/docs`),
-Fase 9 (hardening y despliegue).
+Pendiente: Fase 9 (hardening y despliegue).
 
 ## Cómo arrancar en local
 
@@ -69,7 +73,9 @@ existentes (o el mensaje de "todavía no hay hilos" si la base está vacía).
   opcional); auto-oculta a los 3 reportes distintos
 - `POST /api/posts/:postId/appeal` — el autor de un post oculto apela
   (queda `pending`)
-- `GET /api/source-weights` — pesos de fiabilidad por tipo de fuente
+- `GET /api/source-weights`, `PATCH /api/source-weights/:type` (admin) —
+  pesos de fiabilidad por tipo de fuente
+- `GET /api/admin/docs` — documentación interna (requiere rol admin)
 
 ## Estructura
 
@@ -79,14 +85,15 @@ veritas/
     src/
       config/       # conexión a Mongo
       models/       # Post, User, SourceWeight, Report, Appeal
-      routes/       # rutas Express por dominio (auth, threads, posts, source-weights)
+      routes/       # rutas Express por dominio (auth, threads, posts, source-weights, docs)
       controllers/  # lógica de cada ruta
+      content/      # adminDocs.js — contenido de /admin/docs
       middleware/    # auth, manejo de errores
       utils/         # cascade (childCount), reliability (reliabilityAgg), jwt, password
   client/
     src/
       api/           # cliente HTTP hacia el backend
-      pages/         # Home, Login, Register, NewThread, Thread
+      pages/         # Home, Login, Register, NewThread, Thread, AdminDocs
       components/    # PostNode, Sunburst, TreeView, PostModeration, ReliabilityBadge, ReplyForm...
       context/        # AuthContext
       utils/         # reliabilityColor (escala compartida rojo/ámbar/verde)
@@ -95,4 +102,4 @@ veritas/
 ## Roadmap
 
 Ver el documento de proyecto para el roadmap completo por fases (0 a 9).
-Estamos en: **Fase 8 — Documentación interna solo-admin**.
+Estamos en: **Fase 9 — Hardening y despliegue**.

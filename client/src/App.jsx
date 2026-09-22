@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import NewThreadPage from './pages/NewThreadPage.jsx';
 import ThreadPage from './pages/ThreadPage.jsx';
+import AdminDocsPage from './pages/AdminDocsPage.jsx';
 
 export default function App() {
   return (
@@ -21,6 +22,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <NewThreadPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/docs"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminDocsPage />
               </ProtectedRoute>
             }
           />

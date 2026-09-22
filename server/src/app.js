@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import threadRoutes from './routes/threadRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import sourceWeightRoutes from './routes/sourceWeightRoutes.js';
+import docsRoutes from './routes/docsRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -20,7 +21,7 @@ export function createApp() {
   app.use('/api/threads', threadRoutes);
   app.use('/api/posts', postRoutes);
   app.use('/api/source-weights', sourceWeightRoutes);
-  // Las rutas de moderación se montan más adelante (Fase 7).
+  app.use('/api/admin/docs', docsRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

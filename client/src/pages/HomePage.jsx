@@ -24,6 +24,11 @@ export default function HomePage() {
         {user ? (
           <div>
             <span style={{ marginRight: 12 }}>{user.username}</span>
+            {user.role === 'admin' && (
+              <Link to="/admin/docs" style={{ marginRight: 12 }}>
+                Docs
+              </Link>
+            )}
             <button onClick={logout}>Salir</button>
           </div>
         ) : (
