@@ -1,0 +1,21 @@
+/* Reset global mínimo. El resto de estilos vive en componentes vía
+   client/src/styles/tokens.js — este archivo solo existe porque el
+   reset de márgenes por defecto del navegador (body { margin: 8px })
+   no se puede aplicar desde un componente React. #0d1117 duplica
+   colors.surface.base de tokens.js a propósito: un .css no puede
+   importar un .js, y este es el único sitio del proyecto donde hace
+   falta el valor antes de que React monte nada. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #0d1117;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
