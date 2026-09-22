@@ -1,4 +1,6 @@
 import { User } from '../models/User.js';
+import { Post } from '../models/Post.js';
+import { Appeal } from '../models/Appeal.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { generateToken } from '../utils/jwt.js';
 import { AppError } from '../utils/AppError.js';
@@ -79,5 +81,46 @@ export async function me(req, res) {
       role: user.role,
       reputation: user.reputation
     }
+  });
+}
+
+// Estadísticas de perfil — no viven en /me porque ese endpoint se pide
+// en cada carga de la app (AuthContext) y no necesita este coste
+// extra; aquí solo se pide al entrar en /profile.
+export async function getProfile(req, res) {
+  const user = await User.findById(req.user.sub);
+  if (!user) {
+    throw new AppError('Usuario no encontrado', 404);
+  }
+
+  const posts = await Post.find({ authorId: user._id }).select('_id threadRootId sourceWeight');
+
+  const intervenciones = posts.length;
+  const hilos = new Set(posts.map((p) => String(p.threadRootId))).size;
+  const fiabilidadMedia = posts.length ? posts.reduce((sum, p) => sum + p.sourceWeight, 0) / posts.length : null;
+
+  // Appeal no guarda authorId — se filtra por los posts del usuario,
+  // sin tocar ese modelo (ya cerrado en la Fase 7).
+  const postIds = posts.map((p) => p._id);
+  const appeals = await Appeal.find({ postId: { $in: postIds } })
+    .sort({ createdAt: -1 })
+    .populate('postId', 'title content postType forkLabel');
+
+  res.json({
+    user: { id: user._id, username: user.username, reputation: user.reputation },
+    stats: { intervenciones, hilos, fiabilidadMedia },
+    appeals: appeals.map((a) => ({
+      id: a._id,
+      text: a.text,
+      status: a.status,
+      createdAt: a.createdAt,
+      post: a.postId && {
+        id: a.postId._id,
+        title: a.postId.title,
+        content: a.postId.content,
+        isFork: a.postId.postType === 'fork',
+        forkLabel: a.postId.forkLabel
+      }
+    }))
   });
 }

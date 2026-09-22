@@ -1,28 +1,68 @@
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import Nav from './components/Nav.jsx';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import NewThreadPage from './pages/NewThreadPage.jsx';
 import ThreadPage from './pages/ThreadPage.jsx';
 import AdminDocsPage from './pages/AdminDocsPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 import { colors, typography } from './styles/tokens.js';
+
+// Login/Register son la única pantalla sin Nav (tarjeta centrada, sin
+// cabecera) — el resto de rutas pasan por aquí para no repetir <Nav />
+// en cada página.
+function AppLayout({ children }) {
+  return (
+    <>
+      <Nav />
+      {children}
+    </>
+  );
+}
 
 export default function App() {
   return (
     <AuthProvider>
       <div style={{ fontFamily: typography.fontFamily, background: colors.surface.base, color: colors.text.primary, minHeight: '100vh' }}>
         <Routes>
-          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/threads/:id" element={<ThreadPage />} />
+          <Route
+            path="/"
+            element={
+              <AppLayout>
+                <HomePage />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/threads/:id"
+            element={
+              <AppLayout>
+                <ThreadPage />
+              </AppLayout>
+            }
+          />
           <Route
             path="/new-thread"
             element={
               <ProtectedRoute>
-                <NewThreadPage />
+                <AppLayout>
+                  <NewThreadPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ProfilePage />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -30,7 +70,9 @@ export default function App() {
             path="/admin/docs"
             element={
               <ProtectedRoute role="admin">
-                <AdminDocsPage />
+                <AppLayout>
+                  <AdminDocsPage />
+                </AppLayout>
               </ProtectedRoute>
             }
           />

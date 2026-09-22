@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { colors, radii, spacing, typography, reliabilityGradient } from '../styles/tokens.js';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
+import Avatar from './Avatar.jsx';
 
 const WIDTH = 640;
 const RADIUS = WIDTH / 6;
@@ -241,7 +242,10 @@ export default function Sunburst({ posts }) {
               }}
             >
               {tooltip.post.title && <div style={{ fontWeight: typography.weight.semibold, marginBottom: 4 }}>{tooltip.post.title}</div>}
-              <div style={{ fontWeight: typography.weight.semibold, marginBottom: 4 }}>{tooltip.post.authorId?.username || '—'}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <Avatar username={tooltip.post.authorId?.username} />
+                <span style={{ fontWeight: typography.weight.semibold }}>{tooltip.post.authorId?.username || '—'}</span>
+              </div>
               <div style={{ opacity: 0.85, marginBottom: 4 }}>
                 {tooltip.post.content?.slice(0, 140)}
                 {tooltip.post.content?.length > 140 ? '…' : ''}
@@ -283,6 +287,7 @@ export default function Sunburst({ posts }) {
             }}
           >
             <ReliabilityBadge value={u.mean} />
+            <Avatar username={u.username} />
             <span style={{ minWidth: 0, flex: 1 }}>
               <span style={{ display: 'block', fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {u.username}

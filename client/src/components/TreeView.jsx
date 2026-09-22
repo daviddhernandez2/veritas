@@ -3,6 +3,7 @@ import { colors, radii, spacing, typography, shadows, reliabilityGradient, secon
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 import ReplyForm from './ReplyForm.jsx';
 import PostModeration from './PostModeration.jsx';
+import Avatar from './Avatar.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const FORK_COLOR = colors.accent.fork;
@@ -240,6 +241,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
               }
             >
               {post.postType === 'fork' && <span>↳</span>}
+              {post.postType !== 'fork' && i > 0 && <Avatar username={post.authorId?.username} size="sm" />}
               <span>{post.postType === 'fork' ? post.forkLabel : i === 0 ? 'Raíz del hilo' : post.authorId?.username || '—'}</span>
             </button>
             {i < crumbs.length - 1 && <span style={{ fontSize: typography.size.sm, color: colors.text.dim }}>›</span>}
@@ -348,8 +350,9 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                           <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.forkLabel}</span>
                         </span>
                       )}
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 10px 0' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px 0' }}>
                         <ReliabilityBadge value={post.reliabilityAgg} />
+                        <Avatar username={post.authorId?.username} />
                         <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {post.authorId?.username || '—'}
                         </span>
@@ -414,6 +417,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap', marginBottom: 9 }}>
                   <ReliabilityBadge value={selected.reliabilityAgg} />
+                  <Avatar username={selected.authorId?.username} />
                   <span style={{ fontSize: typography.size.body, fontWeight: typography.weight.semibold, color: colors.text.primary }}>{selected.authorId?.username || '—'}</span>
                 </div>
                 {selected.title && <div style={{ fontSize: typography.size.md, fontWeight: typography.weight.semibold, color: colors.text.primary, marginBottom: 9 }}>{selected.title}</div>}
@@ -473,6 +477,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                   )}
                   <span style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
                     <ReliabilityBadge value={child.reliabilityAgg} />
+                    <Avatar username={child.authorId?.username} />
                     <span style={{ fontSize: typography.size.sm, color: colors.text.body }}>{child.authorId?.username || '—'}</span>
                   </span>
                   {childHidden ? (

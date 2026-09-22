@@ -67,10 +67,6 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
-
-        <p style={{ marginTop: spacing.lg, textAlign: 'center', fontSize: typography.size.sm, color: colors.text.muted }}>
-          ¿No tienes cuenta? <Link to="/register" style={{ color: colors.accent.link }}>Regístrate</Link>
-        </p>
       </div>
     </div>
   );

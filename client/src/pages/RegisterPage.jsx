@@ -80,10 +80,6 @@ export default function RegisterPage() {
             </button>
           </form>
         </div>
-
-        <p style={{ marginTop: spacing.lg, textAlign: 'center', fontSize: typography.size.sm, color: colors.text.muted }}>
-          ¿Ya tienes cuenta? <Link to="/login" style={{ color: colors.accent.link }}>Entra</Link>
-        </p>
       </div>
     </div>
   );

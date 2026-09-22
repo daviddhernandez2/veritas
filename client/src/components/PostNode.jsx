@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ReplyForm from './ReplyForm.jsx';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 import PostModeration from './PostModeration.jsx';
+import Avatar from './Avatar.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { colors, radii, spacing, typography, secondaryButtonStyle } from '../styles/tokens.js';
 
@@ -39,7 +40,10 @@ export default function PostNode({ post, childrenByParent, sourceWeights, onRepl
             </div>
           )}
           {post.title && <h3 style={{ margin: '0 0 6px' }}>{post.title}</h3>}
-          <div style={{ fontSize: typography.size.body, fontWeight: typography.weight.semibold, marginBottom: spacing.xs }}>{post.authorId?.username || '—'}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.xs }}>
+            <Avatar username={post.authorId?.username} />
+            <span style={{ fontSize: typography.size.body, fontWeight: typography.weight.semibold }}>{post.authorId?.username || '—'}</span>
+          </div>
           <p style={{ margin: 0, color: colors.text.body }}>{post.content}</p>
           <div style={{ fontSize: typography.size.sm, opacity: 0.7, marginTop: spacing.xs + 2, display: 'flex', alignItems: 'center', gap: spacing.sm }}>
             <span>Fuente: {post.sourceType} (peso {post.sourceWeight})</span>
