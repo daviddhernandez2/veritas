@@ -1,4 +1,11 @@
-/* Reset global mínimo. El resto de estilos vive en componentes vía
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset global mínimo, complementario al preflight de Tailwind (que no
+   cubre background/#root). El resto de estilos vive en componentes vía
    client/src/styles/tokens.js — este archivo solo existe porque el
    reset de márgenes por defecto del navegador (body { margin: 8px })
    no se puede aplicar desde un componente React. #0d1117 duplica
@@ -18,4 +25,95 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+@layer base {
+  /* Veritas no tiene toggle claro/oscuro — es oscuro siempre. En vez de
+     dejar los valores oklch claros que genera el preset por defecto de
+     shadcn, :root usa directamente la paleta de tokens.js (duplicados
+     aquí por el mismo motivo que el resto de este archivo: un .css no
+     puede importar un .js). El bloque .dark de abajo queda tal cual lo
+     generó el CLI — no se aplica nunca (no hay ninguna clase "dark" en
+     el árbol), se deja sin tocar por no arriesgar nada innecesario.
+
+     Formato "r g b" (canales sin rgb()), no hex: los componentes de
+     shadcn usan modificadores de opacidad Tailwind (bg-primary/80,
+     outline-ring/50...) que necesitan poder inyectar el alpha —
+     tailwind.config.js envuelve esto como rgb(var(--x) / <alpha-value>). */
+  :root {
+    --background: 13 17 23;
+    --foreground: 230 237 243;
+    --card: 22 27 34;
+    --card-foreground: 230 237 243;
+    --popover: 22 27 34;
+    --popover-foreground: 230 237 243;
+    --primary: 35 134 54;
+    --primary-foreground: 255 255 255;
+    --secondary: 33 38 45;
+    --secondary-foreground: 230 237 243;
+    --muted: 33 38 45;
+    --muted-foreground: 139 148 158;
+    --accent: 33 38 45;
+    --accent-foreground: 230 237 243;
+    --destructive: 248 81 73;
+    --border: 48 54 61;
+    --input: 48 54 61;
+    --ring: 68 147 248;
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 6px;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+  }
+  .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
