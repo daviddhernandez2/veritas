@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { colors, radii, spacing, typography, reliabilityGradient } from '../styles/tokens.js';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 import Avatar from './Avatar.jsx';
+import { getSourceTypeLabel } from '../utils/sourceTypeLabels.js';
 
 const WIDTH = 640;
 const RADIUS = WIDTH / 6;
@@ -251,7 +252,7 @@ export default function Sunburst({ posts }) {
                 {tooltip.post.content?.length > 140 ? '…' : ''}
               </div>
               <div style={{ display: 'flex', gap: spacing.sm, opacity: 0.7 }}>
-                <span>Fuente: {tooltip.post.sourceType}</span>
+                <span>Fuente: {getSourceTypeLabel(tooltip.post.sourceType)}</span>
                 <span>Fiabilidad: {tooltip.post.reliabilityAgg == null ? '—' : tooltip.post.reliabilityAgg.toFixed(2)}</span>
               </div>
               {tooltip.post.postType === 'fork' && <div style={{ color: colors.accent.fork, marginTop: 4 }}>↳ Bifurcación: {tooltip.post.forkLabel}</div>}

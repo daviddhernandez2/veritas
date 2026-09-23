@@ -5,7 +5,7 @@ import { Appeal } from "../models/Appeal.js";
 import { AppError } from "../utils/AppError.js";
 
 const CLASSIC_SELECT =
-  "authorId parentId depth title content postType forkLabel forkRationale sourceType sourceWeight reliabilityAgg childCount status reportCount createdAt";
+  "authorId parentId depth title content postType forkLabel forkRationale sourceType sourceUrl sourceWeight reliabilityAgg childCount status reportCount createdAt";
 
 // Los posts ocultos por moderación se siguen devolviendo (si no,
 // descolgarían a sus hijos, que pueden seguir visibles, del árbol

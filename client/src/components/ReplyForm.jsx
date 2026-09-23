@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { colors, spacing, typography, primaryButtonStyle, ghostButtonStyle, inputStyle } from '../styles/tokens.js';
+import { getSourceTypeLabel } from '../utils/sourceTypeLabels.js';
 
 // Componente controlado: no sabe nada de la API, solo recoge los datos
 // y llama a onSubmit. Ahora incluye el selector reply/fork — cuando es
@@ -74,7 +75,7 @@ export default function ReplyForm({ sourceWeights, onSubmit, onCancel }) {
         <option value="" disabled>Tipo de fuente</option>
         {sourceWeights.map((sw) => (
           <option key={sw.sourceType} value={sw.sourceType}>
-            {sw.sourceType} (peso {sw.weight})
+            {getSourceTypeLabel(sw.sourceType)} (peso {sw.weight})
           </option>
         ))}
       </select>

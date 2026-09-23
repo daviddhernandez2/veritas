@@ -17,6 +17,7 @@ const ROUTE_TITLES = [
   { test: (p) => p === '/notifications', title: 'Notificaciones' },
   { test: (p) => p === '/admin/docs', title: 'Documentación interna' },
   { test: (p) => p === '/como-funciona', title: 'Cómo funciona' },
+  { test: (p) => p.includes('/branch/'), title: 'Rama' },
   { test: (p) => p.startsWith('/threads/'), title: 'Hilo' }
 ];
 
@@ -25,6 +26,10 @@ function getScreenTitle(pathname) {
 }
 
 function getBackFallback(pathname) {
+  // "Continuar rama" (PostNode.jsx) vuelve al hilo del que salió, no a
+  // Hilos — si no, se pierde el contexto de en qué hilo estabas.
+  const branchMatch = pathname.match(/^\/threads\/([^/]+)\/branch\//);
+  if (branchMatch) return `/threads/${branchMatch[1]}`;
   if (pathname.startsWith('/threads/')) return '/';
   if (pathname === '/new-thread') return '/';
   if (pathname === '/admin/docs' || pathname === '/como-funciona') return '/profile';

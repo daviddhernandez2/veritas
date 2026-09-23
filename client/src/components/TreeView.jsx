@@ -5,6 +5,7 @@ import ReplyForm from './ReplyForm.jsx';
 import PostModeration from './PostModeration.jsx';
 import Avatar from './Avatar.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { getSourceTypeLabel } from '../utils/sourceTypeLabels.js';
 
 const FORK_COLOR = colors.accent.fork;
 const SELECTED_EXCERPT_LENGTH = 180;
@@ -373,7 +374,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                         </span>
                       )}
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px 9px', marginTop: 'auto' }}>
-                        <span style={sourceChipStyle(post.sourceWeight)}>{post.sourceType}</span>
+                        <span style={sourceChipStyle(post.sourceWeight)}>{getSourceTypeLabel(post.sourceType)}</span>
                       </span>
                     </button>
                     {r.childCountHidden > 0 && (
@@ -442,7 +443,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
                   <span style={sourceChipStyle(selected.sourceWeight)}>
-                    {selected.sourceType} {selected.sourceWeight.toFixed(2)}
+                    {getSourceTypeLabel(selected.sourceType)} {selected.sourceWeight.toFixed(2)}
                   </span>
                   <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.dim }}>
                     {selected.childCount} en rama · nivel {selected.depth}
@@ -502,7 +503,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                     <span style={{ fontSize: typography.size.xs, color: colors.danger.text }}>⚠ Oculto por reportes</span>
                   ) : (
                     <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.dim }}>
-                      {child.sourceType} {child.sourceWeight.toFixed(2)} · {child.childCount} resp.
+                      {getSourceTypeLabel(child.sourceType)} {child.sourceWeight.toFixed(2)} · {child.childCount} resp.
                     </span>
                   )}
                 </button>

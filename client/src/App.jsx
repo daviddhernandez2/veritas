@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import NewThreadPage from './pages/NewThreadPage.jsx';
 import ThreadPage from './pages/ThreadPage.jsx';
+import ThreadBranchPage from './pages/ThreadBranchPage.jsx';
 import AdminDocsPage from './pages/AdminDocsPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import NotificationsPage from './pages/NotificationsPage.jsx';
@@ -56,6 +57,16 @@ export default function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <ThreadPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/threads/:id/branch/:postId"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ThreadBranchPage />
                 </AppLayout>
               </ProtectedRoute>
             }

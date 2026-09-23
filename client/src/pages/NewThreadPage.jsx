@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createThreadRequest } from '../api/threads.js';
 import { listSourceWeightsRequest } from '../api/sourceWeights.js';
 import { colors, radii, spacing, typography, primaryButtonStyle, inputStyle, reliabilityGradient } from '../styles/tokens.js';
+import { getSourceTypeLabel } from '../utils/sourceTypeLabels.js';
 
 export default function NewThreadPage() {
   const navigate = useNavigate();
@@ -82,7 +83,7 @@ export default function NewThreadPage() {
                   }}
                 >
                   <span style={{ width: 8, height: 8, borderRadius: 2, background: color, flexShrink: 0 }} />
-                  <span>{sw.sourceType}</span>
+                  <span>{getSourceTypeLabel(sw.sourceType)}</span>
                   <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.muted }}>{sw.weight.toFixed(2)}</span>
                 </button>
               );
