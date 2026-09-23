@@ -15,16 +15,24 @@
 html,
 body {
   margin: 0;
-  /* padding-top/bottom respeta el notch/home-indicator en iOS cuando la
-     PWA corre standalone (viewport-fit=cover en index.html); no hay
-     ningún header fixed/sticky en el proyecto, así que basta con esto
-     aquí en vez de tocar cada componente. */
-  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   background: #0d1117;
 }
 
+/* padding-top/bottom respeta el notch/home-indicator en iOS cuando la
+   PWA corre standalone (viewport-fit=cover en index.html); no hay
+   ningún header fixed/sticky en el proyecto, así que basta con esto
+   aquí en vez de tocar cada componente. Va en :root (= html) UNA sola
+   vez — antes estaba también en body, que al estar anidado dentro de
+   html duplicaba el hueco superior (bug real, visible como espacio en
+   blanco excesivo bajo el notch). */
+:root {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+}
+
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 * {

@@ -24,8 +24,8 @@ export default function ProfilePage() {
     <div style={{ maxWidth: 720, margin: '40px auto', padding: `0 ${spacing.lg}px` }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, marginBottom: spacing.xxl }}>
         <Avatar username={user.username} size="lg" />
-        <div>
-          <h1 style={{ fontSize: typography.size.xxl, fontWeight: typography.weight.semibold, color: colors.text.primary, margin: '0 0 3px' }}>
+        <div style={{ minWidth: 0 }}>
+          <h1 style={{ fontSize: typography.size.xxl, fontWeight: typography.weight.semibold, color: colors.text.primary, margin: '0 0 3px', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
             {user.username}
           </h1>
           <p style={{ margin: 0, fontFamily: typography.monoFontFamily, fontSize: typography.size.sm, color: colors.text.muted }}>

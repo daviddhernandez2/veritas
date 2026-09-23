@@ -18,7 +18,7 @@ export default function LoadingScreen({ message = 'Cargando…', fullScreen = tr
   return (
     <div
       style={{
-        minHeight: fullScreen ? '100vh' : 200,
+        minHeight: fullScreen ? '100dvh' : 200,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

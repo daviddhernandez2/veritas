@@ -31,7 +31,7 @@ export default function RegisterPage() {
   if (submitting) return <LoadingScreen message="Creando tu cuenta…" />;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: `${spacing.xxl}px ${spacing.lg}px` }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: `${spacing.xxl}px ${spacing.lg}px` }}>
       <div style={{ width: '100%', maxWidth: 360 }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xxl }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>

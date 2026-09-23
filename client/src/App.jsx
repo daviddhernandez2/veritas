@@ -26,7 +26,7 @@ function AppLayout({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <div style={{ fontFamily: typography.fontFamily, background: colors.surface.base, color: colors.text.primary, minHeight: '100vh' }}>
+      <div style={{ fontFamily: typography.fontFamily, background: colors.surface.base, color: colors.text.primary, minHeight: '100dvh' }}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
