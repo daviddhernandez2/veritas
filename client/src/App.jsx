@@ -11,6 +11,7 @@ import NewThreadPage from './pages/NewThreadPage.jsx';
 import ThreadPage from './pages/ThreadPage.jsx';
 import ThreadBranchPage from './pages/ThreadBranchPage.jsx';
 import AdminDocsPage from './pages/AdminDocsPage.jsx';
+import ComoFuncionaPage from './pages/ComoFuncionaPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import NotificationsPage from './pages/NotificationsPage.jsx';
 import { colors, typography } from './styles/tokens.js';
@@ -97,6 +98,16 @@ export default function App() {
               <ProtectedRoute role="admin">
                 <AppLayout>
                   <AdminDocsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/como-funciona"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ComoFuncionaPage />
                 </AppLayout>
               </ProtectedRoute>
             }

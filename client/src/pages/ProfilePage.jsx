@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getProfileRequest } from '../api/profile.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import Avatar from '../components/Avatar.jsx';
 import LoadingScreen from '../components/LoadingScreen.jsx';
 import { colors, radii, spacing, typography, reliabilityGradient } from '../styles/tokens.js';
 
 export default function ProfilePage() {
+  const { user: authUser } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -106,6 +109,17 @@ export default function ProfilePage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div style={{ marginTop: spacing.xxl, display: 'flex', flexDirection: 'column', gap: spacing.xs }}>
+        <Link to="/como-funciona" style={{ fontSize: typography.size.body, color: colors.accent.link, textDecoration: 'none' }}>
+          Cómo funciona →
+        </Link>
+        {authUser?.role === 'admin' && (
+          <Link to="/admin/docs" style={{ fontSize: typography.size.body, color: colors.accent.link, textDecoration: 'none' }}>
+            Documentación interna →
+          </Link>
+        )}
       </div>
     </div>
   );

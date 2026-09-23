@@ -151,11 +151,6 @@ export default function Nav() {
           <Link to="/profile" style={navLinkStyle(location.pathname === '/profile')}>
             Perfil
           </Link>
-          {user.role === 'admin' && (
-            <Link to="/admin/docs" style={navLinkStyle(location.pathname === '/admin/docs')}>
-              Docs
-            </Link>
-          )}
         </nav>
       )}
 

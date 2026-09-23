@@ -6,6 +6,7 @@ import threadRoutes from './routes/threadRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import sourceWeightRoutes from './routes/sourceWeightRoutes.js';
 import docsRoutes from './routes/docsRoutes.js';
+import publicDocsRoutes from './routes/publicDocsRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -22,6 +23,7 @@ export function createApp() {
   app.use('/api/posts', postRoutes);
   app.use('/api/source-weights', sourceWeightRoutes);
   app.use('/api/admin/docs', docsRoutes);
+  app.use('/api/docs', publicDocsRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

@@ -1,6 +1,13 @@
-// Contenido de /admin/docs. Es texto plano estructurado (no markdown,
-// el cliente no tiene ninguna librería de parseo) — cada sección es
-// { id, title, blocks }, cada block es uno de:
+// Contenido de /admin/docs (solo rol admin — ver server/src/routes/docsRoutes.js).
+// Documentación INTERNA: arquitectura, guía operativa y referencia de
+// API. El contenido de cara a cualquier usuario logueado (motor de
+// fiabilidad, reply/fork, moderación) vive aparte, en
+// server/src/content/publicDocs.js — antes de esta división todo esto
+// era un único array servido entero solo a admins.
+//
+// Es texto plano estructurado (no markdown, el cliente no tiene
+// ninguna librería de parseo) — cada sección es { id, title, blocks },
+// cada block es uno de:
 //   { type: 'p', text }
 //   { type: 'h3', text }
 //   { type: 'ul', items: [...] }
@@ -37,49 +44,6 @@ export const adminDocs = [
     ]
   },
   {
-    id: 'fiabilidad',
-    title: 'Motor de fiabilidad',
-    blocks: [
-      { type: 'p', text: 'reliabilityAgg se CACHEA en cada post y se recalcula en cascada ascendente cuando algo cambia en su rama (insertar un post nuevo, u ocultar uno por moderación) — nunca se calcula al vuelo en una lectura.' },
-      { type: 'h3', text: 'Fórmula' },
-      { type: 'code', text: 'reliabilityAgg = α × sourceWeight_propio + (1 − α) × promedio(reliabilityAgg de los hijos DIRECTOS visibles)\nα = 0.6\n\nSi el post no tiene hijos visibles: reliabilityAgg = sourceWeight_propio' },
-      { type: 'p', text: 'Implementada en server/src/utils/reliability.js (computeAgg + recalcReliabilityUpward). recalcReliabilityUpward sube desde un post hasta la raíz, recalculando cada ancestro — no basta con propagar un número, porque el hijo que cambió puede alterar la media de TODOS sus hermanos combinada.' },
-      { type: 'h3', text: 'sourceWeight es un snapshot' },
-      { type: 'p', text: 'Al publicar un post se copia el weight vigente de SourceWeight en ese momento. Si un admin cambia después el peso de un tipo de fuente (PATCH /api/source-weights/:type), los posts ya publicados NO se actualizan retroactivamente — sourceWeight es historia, no una referencia viva.' },
-      { type: 'h3', text: 'Pesos por defecto' },
-      { type: 'ul', items: [
-        'paper — 1.0', 'institucion — 0.9', 'medio — 0.6', 'libro — 0.6',
-        'blog — 0.4', 'youtube — 0.3', 'otro — 0.2', 'red_social — 0.15', 'instagram — 0.1'
-      ] }
-    ]
-  },
-  {
-    id: 'reply-fork',
-    title: 'Reply / Fork',
-    blocks: [
-      { type: 'p', text: 'postType distingue una respuesta directa (reply) de una bifurcación de tema (fork). Es PURAMENTE DESCRIPTIVO: no hay sistema de turnos ni bloqueo de ningún tipo. Cualquier usuario puede responder directamente a cualquier post en cualquier momento.' },
-      { type: 'p', text: 'Un fork exige forkLabel + forkRationale obligatorios (validado en el backend, no solo en el formulario) y se distingue solo visualmente — cabecera propia ámbar (#d29922) en las tres vistas.' },
-      { type: 'p', text: 'Aviso para quien toque este código: turnState, awaitingReplyFrom y expiresAt NO existen en el modelo. Se implementaron en algún momento y se retiraron deliberadamente. No los reintroduzcas sin que se pida explícitamente — es una decisión de producto cerrada, no un olvido.' }
-    ]
-  },
-  {
-    id: 'moderacion',
-    title: 'Moderación',
-    blocks: [
-      { type: 'p', text: 'MVP: solo reportes + reputación automática. No hay moderador humano todavía — todo lo que ocurre aquí es una regla automática, sin ninguna cola de revisión.' },
-      { type: 'h3', text: 'Reportar un post' },
-      { type: 'p', text: 'POST /api/posts/:postId/report (requiere sesión). Motivos válidos: fuente_falsa, spam, insulto, irrelevante, otro. Un usuario no puede reportar su propio post, ni reportar el mismo post dos veces (índice único postId+reporterId en el modelo Report, mismo patrón de comprobación previa que el email/username duplicado en el registro — no se depende de capturar el error de Mongo).' },
-      { type: 'h3', text: 'Auto-ocultación' },
-      { type: 'p', text: 'Al llegar a 3 reportes distintos sobre el mismo post: status pasa a "hidden", el autor pierde 10 puntos de reputación (suelo 0, campo User.reputation, empieza en 100), y se recalcula en cascada el reliabilityAgg de sus ancestros para que dejen de contar esa fuente — igual que si el post se hubiera "eliminado" a efectos de la fórmula.' },
-      { type: 'code', text: 'const AUTO_HIDE_THRESHOLD = 3;\nconst REPUTATION_PENALTY = 10;\n// server/src/controllers/postsController.js' },
-      { type: 'p', text: 'Importante para quien edite esta lógica: el post debe guardarse (post.save()) ANTES de llamar a recalcReliabilityUpward — esa función relee de la base de datos qué hijos siguen "visible", así que si el cambio de status todavía no está persistido, seguiría contando el post oculto y el agregado del padre no cambiaría (bug real que se dio y se corrigió durante el desarrollo de esta fase).' },
-      { type: 'h3', text: 'Apelaciones' },
-      { type: 'p', text: 'El autor de un post oculto puede apelar: POST /api/posts/:postId/appeal con un texto explicando por qué el reporte es incorrecto. Solo el propio autor puede apelar, y solo una vez por post. La apelación queda registrada con status="pending" y AHÍ SE QUEDA — no hay ningún flujo que la acepte o rechace todavía (el modelo Appeal solo admite el estado "pending" a propósito, para no construir estados que nada puede alcanzar). Resolver apelaciones es trabajo de una fase de moderación con revisión humana real, todavía no planificada.' },
-      { type: 'h3', text: 'Revelar contenido oculto' },
-      { type: 'p', text: 'Cualquier visitante puede pulsar "Ver de todos modos" sobre un post oculto — es un velo puramente de interfaz (estado local del componente PostModeration), el contenido nunca se redacta en el backend. No hay ninguna restricción de rol sobre quién puede revelar/leer un post oculto hoy.' }
-    ]
-  },
-  {
     id: 'operativa',
     title: 'Guía operativa',
     blocks: [
@@ -110,6 +74,7 @@ export const adminDocs = [
         'POST /api/posts/:postId/appeal — requiere sesión, solo el autor del post oculto → { text }',
         'GET /api/source-weights — lista pública de pesos por tipo de fuente',
         'PATCH /api/source-weights/:type — requiere rol admin → { weight }',
+        'GET /api/docs — requiere sesión (cualquier rol) → documentación pública ("Cómo funciona")',
         'GET /api/admin/docs — requiere rol admin → esta misma documentación'
       ] }
     ]
