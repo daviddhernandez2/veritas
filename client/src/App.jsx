@@ -1,7 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Nav from './components/Nav.jsx';
+import BottomNav from './components/BottomNav.jsx';
+import useIsMobile from './hooks/useIsMobile.js';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
@@ -9,16 +11,24 @@ import NewThreadPage from './pages/NewThreadPage.jsx';
 import ThreadPage from './pages/ThreadPage.jsx';
 import AdminDocsPage from './pages/AdminDocsPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import NotificationsPage from './pages/NotificationsPage.jsx';
 import { colors, typography } from './styles/tokens.js';
 
 // Login/Register son la única pantalla sin Nav (tarjeta centrada, sin
 // cabecera) — el resto de rutas pasan por aquí para no repetir <Nav />
-// en cada página.
+// en cada página. BottomNav solo se monta en móvil y solo con sesión
+// (sin usuario no hay pestañas que mostrar); el padding-bottom evita
+// que el contenido quede tapado por la barra fija.
 function AppLayout({ children }) {
+  const { user } = useAuth();
+  const isMobile = useIsMobile();
+  const showBottomNav = isMobile && user;
+
   return (
     <>
       <Nav />
-      {children}
+      <div style={{ paddingBottom: showBottomNav ? 'calc(56px + env(safe-area-inset-bottom))' : 0 }}>{children}</div>
+      {showBottomNav && <BottomNav />}
     </>
   );
 }
@@ -76,6 +86,16 @@ export default function App() {
               <ProtectedRoute role="admin">
                 <AppLayout>
                   <AdminDocsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <NotificationsPage />
                 </AppLayout>
               </ProtectedRoute>
             }
