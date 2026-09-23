@@ -37,9 +37,9 @@ export default function DocsViewer({ sections, eyebrow, backTo = '/' }) {
             background: colors.surface.panel,
             color: colors.text.primary,
             cursor: 'pointer',
+            fontFamily: typography.fontFamily,
             fontSize: typography.size.sm,
-            fontWeight: typography.weight.semibold,
-            font: 'inherit'
+            fontWeight: typography.weight.semibold
           }}
         >
           <span style={{ flex: 1, textAlign: 'left' }}>{eyebrow}</span>
@@ -60,8 +60,8 @@ export default function DocsViewer({ sections, eyebrow, backTo = '/' }) {
                   border: 'none',
                   borderBottom: `1px solid ${colors.border.subtle}`,
                   color: colors.text.body,
+                  fontFamily: typography.fontFamily,
                   fontSize: typography.size.body,
-                  font: 'inherit',
                   cursor: 'pointer'
                 }}
               >
