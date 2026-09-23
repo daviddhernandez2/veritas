@@ -5,6 +5,7 @@ import ReplyForm from './ReplyForm.jsx';
 import PostModeration from './PostModeration.jsx';
 import Avatar from './Avatar.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import BottomSheet from './BottomSheet.jsx';
 import { getSourceTypeLabel } from '../utils/sourceTypeLabels.js';
 
 const FORK_COLOR = colors.accent.fork;
@@ -32,7 +33,10 @@ function sourceChipStyle(weight) {
 // del algoritmo del mockup de referencia (design-reference/Veritas
 // v2.dc.html:984-1019), adaptado a los posts reales.
 function computeLayout(rootPost, childrenByParent, collapsed, sm) {
-  const NW = sm ? 138 : 176;
+  // Más anchos que antes: con el username en una sola línea (con
+  // ellipsis, nunca partido en dos) hace falta más sitio horizontal
+  // para que quepa un nombre real sin cortarse casi de inmediato.
+  const NW = sm ? 168 : 200;
   // Un poco más altas que en el mockup original: el nombre de usuario ya
   // no se trunca con "…", puede ocupar dos líneas.
   const NH = sm ? 104 : 118;
@@ -96,6 +100,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
   const rootPost = useMemo(() => posts.find((p) => p.parentId === null), [posts]);
 
   const [selectedId, setSelectedId] = useState(initialPath[initialPath.length - 1] || rootPost?._id);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(
     () => new Set(posts.filter((p) => p.postType === 'fork').map((p) => p._id))
   );
@@ -108,6 +113,17 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
   const [dragging, setDragging] = useState(false);
   const vpRef = useRef(null);
   const dragRef = useRef(null);
+  // Pan/zoom con mouse+wheel ya existían — esto añade el equivalente
+  // táctil (Pointer Events, un único set de handlers para mouse y
+  // touch) sin sustituir nada: activePointers trackea cuántos dedos
+  // hay apoyados para distinguir "un dedo = pan" de "dos dedos = pinch".
+  const activePointersRef = useRef(new Map());
+  const pinchRef = useRef(null);
+
+  function selectNode(id) {
+    setSelectedId(id);
+    if (sm) setSheetOpen(true);
+  }
 
   const layout = useMemo(
     () => (rootPost ? computeLayout(rootPost, childrenByParent, collapsed, sm) : null),
@@ -142,15 +158,19 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout?.w, layout?.h]);
 
-  function zoomAt(next) {
+  // `anchor` opcional en coordenadas de página (clientX/clientY) — para
+  // el pinch se ancla al punto medio entre los dos dedos, no al centro
+  // del viewport (así el punto que estás pellizcando se queda quieto).
+  function zoomAt(next, anchor) {
     const el = vpRef.current;
     const z1 = Math.max(0.4, Math.min(1.8, Math.round(next * 100) / 100));
     if (!el) {
       setZoom(z1);
       return;
     }
-    const cx = el.clientWidth / 2;
-    const cy = el.clientHeight / 2;
+    const rect = el.getBoundingClientRect();
+    const cx = anchor ? anchor.x - rect.left : el.clientWidth / 2;
+    const cy = anchor ? anchor.y - rect.top : el.clientHeight / 2;
     setPan((p) => ({ x: cx - ((cx - p.x) * z1) / zoom, y: cy - ((cy - p.y) * z1) / zoom }));
     setZoom(z1);
   }
@@ -171,6 +191,65 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
   function onWheel(e) {
     e.preventDefault();
     zoomAt(zoom - Math.sign(e.deltaY) * 0.08);
+  }
+
+  function pinchDistanceAndMid() {
+    const pts = Array.from(activePointersRef.current.values());
+    const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+    return { dist, mid };
+  }
+
+  function onPointerDown(e) {
+    activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    // Puede lanzar (p.ej. el pointer ya se liberó en un tap rápido) —
+    // no debe cortar el resto del handler, que es lo que de verdad
+    // arma el estado de pan/pinch.
+    try {
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    } catch {
+      // sin captura explícita seguimos recibiendo los eventos igual
+      // mientras el dedo no salga del viewport, que es el caso normal.
+    }
+
+    if (activePointersRef.current.size === 2) {
+      dragRef.current = null;
+      setDragging(false);
+      const { dist } = pinchDistanceAndMid();
+      pinchRef.current = { startDist: dist, startZoom: zoom };
+    } else if (activePointersRef.current.size === 1) {
+      onPanStart(e);
+    }
+  }
+
+  function onPointerMove(e) {
+    if (!activePointersRef.current.has(e.pointerId)) return;
+    activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (activePointersRef.current.size === 2 && pinchRef.current) {
+      const { dist, mid } = pinchDistanceAndMid();
+      const scale = dist / pinchRef.current.startDist;
+      zoomAt(pinchRef.current.startZoom * scale, mid);
+      return;
+    }
+    if (activePointersRef.current.size === 1) onPanMove(e);
+  }
+
+  function onPointerUp(e) {
+    activePointersRef.current.delete(e.pointerId);
+
+    if (activePointersRef.current.size < 2) {
+      pinchRef.current = null;
+    }
+    if (activePointersRef.current.size === 0) {
+      onPanEnd();
+    } else if (activePointersRef.current.size === 1) {
+      // Queda un dedo apoyado tras soltar el otro — retoma el pan desde
+      // su posición actual en vez de saltar con el delta acumulado.
+      const [[, pt]] = activePointersRef.current;
+      dragRef.current = { x: pt.x, y: pt.y, px: pan.x, py: pan.y };
+      setDragging(true);
+    }
   }
 
   function toggleCollapsed(id) {
@@ -213,7 +292,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
         {crumbs.map((post, i) => (
           <span key={post._id} style={{ display: 'inline-flex', alignItems: 'center', gap: spacing.xs }}>
             <button
-              onClick={() => setSelectedId(post._id)}
+              onClick={() => selectNode(post._id)}
               style={
                 post.postType === 'fork'
                   ? {
@@ -280,10 +359,10 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
 
           <div
             ref={vpRef}
-            onMouseDown={onPanStart}
-            onMouseMove={onPanMove}
-            onMouseUp={onPanEnd}
-            onMouseLeave={onPanEnd}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
             onWheel={onWheel}
             style={{
               position: 'relative',
@@ -329,7 +408,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                 return (
                   <div key={post._id} style={{ position: 'absolute', left: r.x, top: r.y, width: r.w }}>
                     <button
-                      onClick={() => setSelectedId(post._id)}
+                      onClick={() => selectNode(post._id)}
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -362,7 +441,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px 0' }}>
                         <ReliabilityBadge value={post.reliabilityAgg} />
                         <Avatar username={post.authorId?.username} />
-                        <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                        <span style={{ minWidth: 0, flex: 1, fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {post.authorId?.username || '—'}
                         </span>
                       </span>
@@ -412,11 +491,8 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.md }}>
-          <div style={{ border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
-            <div style={{ padding: '8px 12px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}`, fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>
-              Nodo seleccionado
-            </div>
-            <div style={{ padding: spacing.md, display: 'flex', flexDirection: 'column', gap: 9 }}>
+          {(() => {
+            const selectedDetail = (
               <PostModeration post={selected} onReport={onReport} onAppeal={onAppeal}>
                 {selected.postType === 'fork' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.xs, padding: '8px 10px', border: `1px dashed ${FORK_COLOR}`, borderRadius: radii.md, background: colors.surface.sunken, marginBottom: 9 }}>
@@ -458,8 +534,56 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                 )}
                 {user && replying && <ReplyForm sourceWeights={sourceWeights} onSubmit={handleReplySubmit} onCancel={() => setReplying(false)} />}
               </PostModeration>
-            </div>
-          </div>
+            );
+
+            // Móvil: panel entero sustituido por una barra compacta que
+            // abre un BottomSheet (se abre solo, además, al tocar un
+            // nodo — ver selectNode). Desktop: panel siempre visible,
+            // sin cambios respecto a antes.
+            if (sm) {
+              return (
+                <>
+                  <button
+                    onClick={() => setSheetOpen(true)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing.sm,
+                      width: '100%',
+                      minHeight: 44,
+                      padding: '9px 12px',
+                      border: `1px solid ${colors.border.default}`,
+                      borderRadius: radii.md,
+                      background: colors.surface.panel,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      font: 'inherit',
+                      color: 'inherit'
+                    }}
+                  >
+                    <ReliabilityBadge value={selected.reliabilityAgg} />
+                    <Avatar username={selected.authorId?.username} />
+                    <span style={{ minWidth: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>
+                      {selected.authorId?.username || '—'}
+                    </span>
+                    <span style={{ flexShrink: 0, fontSize: typography.size.sm, color: colors.accent.link }}>Ver detalles →</span>
+                  </button>
+                  <BottomSheet isOpen={sheetOpen} onClose={() => setSheetOpen(false)} title="Nodo seleccionado">
+                    {selectedDetail}
+                  </BottomSheet>
+                </>
+              );
+            }
+
+            return (
+              <div style={{ border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
+                <div style={{ padding: '8px 12px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}`, fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>
+                  Nodo seleccionado
+                </div>
+                <div style={{ padding: spacing.md, display: 'flex', flexDirection: 'column', gap: 9 }}>{selectedDetail}</div>
+              </div>
+            );
+          })()}
 
           <div style={{ border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: spacing.sm, padding: '8px 12px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}` }}>
@@ -474,7 +598,7 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
               return (
                 <button
                   key={child._id}
-                  onClick={() => setSelectedId(child._id)}
+                  onClick={() => selectNode(child._id)}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -494,10 +618,12 @@ export default function TreeView({ posts, initialPath, sourceWeights, onReply, o
                   {child.postType === 'fork' && (
                     <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>↳ {child.forkLabel}</span>
                   )}
-                  <span style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, minWidth: 0 }}>
                     <ReliabilityBadge value={child.reliabilityAgg} />
                     <Avatar username={child.authorId?.username} />
-                    <span style={{ fontSize: typography.size.sm, color: colors.text.body }}>{child.authorId?.username || '—'}</span>
+                    <span style={{ minWidth: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: typography.size.sm, color: colors.text.body }}>
+                      {child.authorId?.username || '—'}
+                    </span>
                   </span>
                   {childHidden ? (
                     <span style={{ fontSize: typography.size.xs, color: colors.danger.text }}>⚠ Oculto por reportes</span>

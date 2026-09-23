@@ -57,7 +57,11 @@ export default function BottomSheet({ isOpen, onClose, title, children }) {
 
   function onPointerDown(e) {
     dragState.current = { dragging: true, startY: e.clientY };
-    e.currentTarget.setPointerCapture?.(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    } catch {
+      // ver mismo motivo en TreeView.jsx — no debe cortar el arrastre.
+    }
   }
 
   function onPointerMove(e) {
