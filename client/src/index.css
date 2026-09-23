@@ -52,6 +52,21 @@ body {
   animation: veritas-spin 1.1s linear infinite;
 }
 
+/* Usada por ThreadCardSkeleton.jsx — pulso de carga sobre los bloques
+   fantasma del feed, mismo motivo que veritas-spin de arriba. */
+@keyframes veritas-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.veritas-pulse {
+  animation: veritas-pulse 1.4s ease-in-out infinite;
+}
+
 @layer base {
   /* Veritas no tiene toggle claro/oscuro — es oscuro siempre. En vez de
      dejar los valores oklch claros que genera el preset por defecto de

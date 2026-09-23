@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import { listThreadsRequest } from '../api/threads.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import ReliabilityBadge from '../components/ReliabilityBadge.jsx';
-import LoadingScreen from '../components/LoadingScreen.jsx';
+import ThreadCardSkeleton from '../components/ThreadCardSkeleton.jsx';
+import useIsMobile from '../hooks/useIsMobile.js';
+import { relativeDate } from '../utils/relativeDate.js';
 import { colors, spacing, typography, primaryButtonStyle } from '../styles/tokens.js';
 
 export default function HomePage() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,26 +26,43 @@ export default function HomePage() {
     <div style={{ maxWidth: 720, margin: '40px auto', padding: `0 ${spacing.lg}px` }}>
       <h1 style={{ fontSize: typography.size.xxl, fontWeight: typography.weight.semibold, color: colors.text.primary }}>Hilos activos</h1>
 
-      {user && (
+      {/* En móvil "Crear" de BottomNav.jsx ya cubre esta acción — el
+          botón aquí encima solo duplicaría la entrada. */}
+      {user && !isMobile && (
         <Link to="/new-thread" style={{ display: 'inline-block', margin: `${spacing.lg}px 0` }}>
           <button style={primaryButtonStyle}>+ Nuevo hilo</button>
         </Link>
       )}
 
       {error && <p style={{ color: colors.reliability.low }}>{error}</p>}
-      {loading && <LoadingScreen message="Cargando hilos…" fullScreen={false} />}
+      {loading && <ThreadCardSkeleton />}
 
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul style={{ listStyle: 'none', padding: 0, marginTop: isMobile ? spacing.lg : 0 }}>
         {threads.map((thread) => (
-          <li key={thread._id} style={{ padding: '12px 0', borderBottom: `1px solid ${colors.border.default}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
-              <Link to={`/threads/${thread._id}`} style={{ fontSize: typography.size.lg + 3, fontWeight: typography.weight.semibold, color: colors.text.primary }}>
-                {thread.title}
-              </Link>
+          <li key={thread._id} style={{ padding: '14px 0', borderBottom: `1px solid ${colors.border.default}` }}>
+            <Link
+              to={`/threads/${thread._id}`}
+              style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                fontSize: typography.size.lg + 3,
+                fontWeight: typography.weight.semibold,
+                color: colors.text.primary,
+                textDecoration: 'none',
+                marginBottom: spacing.xs + 2
+              }}
+            >
+              {thread.title}
+            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xs + 2, fontSize: typography.size.body, color: colors.text.muted }}>
               <ReliabilityBadge value={thread.reliabilityAgg} />
-            </div>
-            <div style={{ fontSize: typography.size.body, color: colors.text.muted }}>
-              {thread.childCount} respuestas · {new Date(thread.createdAt).toLocaleDateString()}
+              <span>
+                {thread.childCount} {thread.childCount === 1 ? 'respuesta' : 'respuestas'}
+              </span>
+              <span>·</span>
+              <span>{relativeDate(thread.createdAt)}</span>
             </div>
           </li>
         ))}
