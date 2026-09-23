@@ -35,8 +35,8 @@ export function AuthProvider({ children }) {
     setUser(newUser);
   }
 
-  function logout() {
-    logoutRequest();
+  async function logout() {
+    await logoutRequest();
     setUser(null);
   }
 

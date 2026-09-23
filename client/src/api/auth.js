@@ -23,6 +23,12 @@ export async function meRequest() {
   return data.user;
 }
 
-export function logout() {
+export async function logout() {
+  // Borra la caché de respaldo offline de la API al salir — sin esto,
+  // si otra persona entra después en el mismo dispositivo vería datos
+  // cacheados de la sesión anterior hasta que expiren (24h).
+  if ('caches' in window) {
+    await caches.delete('api-cache').catch(() => {});
+  }
   setToken(null);
 }
