@@ -113,7 +113,7 @@ export default function ThreadPage() {
             />
           </div>
         )}
-        {view === 'sunburst' && <Sunburst posts={posts} />}
+        {view === 'sunburst' && <Sunburst posts={posts} onViewClassic={() => setView('classic')} />}
         {view === 'tree' &&
           (treeLoading || !treeData ? (
             <LoadingScreen message="Cargando árbol…" fullScreen={false} />

@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { colors, radii, spacing, typography, reliabilityGradient } from '../styles/tokens.js';
+import { colors, radii, spacing, typography, reliabilityGradient, primaryButtonStyle } from '../styles/tokens.js';
 import ReliabilityBadge from './ReliabilityBadge.jsx';
 import Avatar from './Avatar.jsx';
+import BottomSheet from './BottomSheet.jsx';
+import useIsMobile from '../hooks/useIsMobile.js';
 import { getSourceTypeLabel } from '../utils/sourceTypeLabels.js';
 
 const WIDTH = 640;
 const RADIUS = WIDTH / 6;
+// En móvil los arcos finos son ilegibles con el umbral de desktop —
+// se sube el mínimo de tamaño para mostrar etiqueta.
+const LABEL_MIN_AREA = { desktop: 0.03, mobile: 0.06 };
 
 // Solo se ven 3 anillos de profundidad a la vez (y0>=1 && y1<=3) — un
 // debate puede tener muchos más niveles que eso, así que el resto se
@@ -16,8 +21,9 @@ function arcVisible(d) {
   return d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
 }
 
-function labelVisible(d) {
-  return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
+function labelVisible(d, isMobile) {
+  const minArea = isMobile ? LABEL_MIN_AREA.mobile : LABEL_MIN_AREA.desktop;
+  return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > minArea;
 }
 
 // Opacidad de un arco: visible/invisible según el nivel de zoom actual,
@@ -30,17 +36,24 @@ function arcOpacity(d, visible, highlightedAuthor) {
   return d.data.authorId?._id === highlightedAuthor ? base : 0.12;
 }
 
-export default function Sunburst({ posts }) {
+export default function Sunburst({ posts, onViewClassic }) {
   const svgRef = useRef(null);
   const pathRef = useRef(null);
   const highlightedAuthorRef = useRef(null);
+  const isMobile = useIsMobile();
+  const isMobileRef = useRef(isMobile);
   const [tooltip, setTooltip] = useState(null);
   const [focus, setFocus] = useState(null);
   const [highlightedAuthor, setHighlightedAuthor] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     highlightedAuthorRef.current = highlightedAuthor;
   }, [highlightedAuthor]);
+
+  useEffect(() => {
+    isMobileRef.current = isMobile;
+  }, [isMobile]);
 
   // Reaplica la opacidad al instante cuando cambia el participante
   // resaltado, sin tener que rehacer todo el layout de D3.
@@ -119,13 +132,22 @@ export default function Sunburst({ posts }) {
       .attr('d', (d) => arc(d.current));
     pathRef.current = path;
 
-    path
-      .filter((d) => d.children)
-      .style('cursor', 'pointer')
-      .on('click', clicked);
+    // Desktop: solo los arcos con hijos hacen zoom al click, el resto
+    // se explora con el tooltip de hover. Móvil: cualquier arco abre el
+    // bottom sheet de preview al tocarlo, y si además tiene hijos,
+    // también hace zoom a la vez (mismo gesto, las dos cosas).
+    path.style('cursor', 'pointer').on('click', (event, d) => {
+      if (isMobileRef.current) {
+        setSelectedPost(d.data);
+        if (d.children) clicked(event, d);
+      } else if (d.children) {
+        clicked(event, d);
+      }
+    });
 
     path
       .on('mousemove', (event, d) => {
+        if (isMobileRef.current) return;
         setTooltip({ x: event.clientX, y: event.clientY, post: d.data });
       })
       .on('mouseleave', () => setTooltip(null));
@@ -139,7 +161,7 @@ export default function Sunburst({ posts }) {
       .data(root.descendants().slice(1))
       .join('text')
       .attr('fill', colors.surface.base)
-      .attr('fill-opacity', (d) => +labelVisible(d.current))
+      .attr('fill-opacity', (d) => +labelVisible(d.current, isMobileRef.current))
       .attr('transform', (d) => labelTransform(d.current))
       .text((d) => (d.data.title || d.data.content || '').slice(0, 18));
 
@@ -183,10 +205,10 @@ export default function Sunburst({ posts }) {
 
       label
         .filter(function (d) {
-          return +this.getAttribute('fill-opacity') || labelVisible(d.target);
+          return +this.getAttribute('fill-opacity') || labelVisible(d.target, isMobileRef.current);
         })
         .transition(t)
-        .attr('fill-opacity', (d) => +labelVisible(d.target))
+        .attr('fill-opacity', (d) => +labelVisible(d.target, isMobileRef.current))
         .attrTween('transform', (d) => () => labelTransform(d.current));
     }
 
@@ -262,7 +284,7 @@ export default function Sunburst({ posts }) {
         <Legend />
       </div>
 
-      <div style={{ width: 240, flexShrink: 0, border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
+      <div style={{ width: isMobile ? '100%' : 240, flexShrink: 0, border: `1px solid ${colors.border.default}`, borderRadius: radii.md, overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, padding: '8px 12px', background: colors.surface.panel, borderBottom: `1px solid ${colors.border.default}` }}>
           <span style={{ fontSize: typography.size.sm, fontWeight: typography.weight.semibold, color: colors.text.primary }}>Participantes</span>
           <span style={{ fontFamily: typography.monoFontFamily, fontSize: typography.size.xs, color: colors.text.dim, marginLeft: 'auto' }}>{participants.length}</span>
@@ -300,6 +322,34 @@ export default function Sunburst({ posts }) {
           </button>
         ))}
       </div>
+
+      <BottomSheet isOpen={!!selectedPost} onClose={() => setSelectedPost(null)} title="Post seleccionado">
+        {selectedPost && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm }}>
+            {selectedPost.title && <div style={{ fontWeight: typography.weight.semibold, color: colors.text.primary }}>{selectedPost.title}</div>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Avatar username={selectedPost.authorId?.username} />
+              <span style={{ fontWeight: typography.weight.semibold, color: colors.text.primary }}>{selectedPost.authorId?.username || '—'}</span>
+            </div>
+            {selectedPost.postType === 'fork' && (
+              <div style={{ color: colors.accent.fork, fontSize: typography.size.sm }}>↳ Bifurcación: {selectedPost.forkLabel}</div>
+            )}
+            <div style={{ color: colors.text.body, fontSize: typography.size.body }}>
+              {(selectedPost.content || '').slice(0, 220)}
+              {(selectedPost.content || '').length > 220 ? '…' : ''}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, fontSize: typography.size.sm, color: colors.text.muted }}>
+              <ReliabilityBadge value={selectedPost.reliabilityAgg} />
+              <span>Fuente: {getSourceTypeLabel(selectedPost.sourceType)}</span>
+            </div>
+            {onViewClassic && (
+              <button style={{ ...primaryButtonStyle, marginTop: spacing.xs, minHeight: 44 }} onClick={() => { setSelectedPost(null); onViewClassic(); }}>
+                Abrir en vista clásica
+              </button>
+            )}
+          </div>
+        )}
+      </BottomSheet>
     </div>
   );
 }
